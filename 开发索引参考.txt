@@ -1,0 +1,56 @@
+驾考一点通 - 开发索引
+一、技术栈
+前端：Vue 3
+
+后端：Spring Boot 4
+
+数据库：MySQL
+
+二、后端接口设计
+接口	方法	路径	说明
+获取所有题目	GET	/api/questions	返回题库列表
+获取随机题目	GET	/api/questions/random	参数：count，返回指定数量随机题
+获取错题本	GET	/api/wrong-questions	返回当前用户错题列表
+添加错题	POST	/api/wrong-questions	body：{ questionId }
+删除错题	DELETE	/api/wrong-questions/{id}	从错题本移除
+提交考试结果	POST	/api/exam/submit	body：{ answers: [] }，返回分数和错题
+三、前端页面结构
+页面	路由	说明
+首页	/	导航入口，显示三个功能按钮
+顺序练习	/practice	一题一题展示，答完显示解析
+模拟考试	/exam	抽固定数量题，全部答完自动评分
+错题本	/wrong	显示错题列表，支持移除和重练
+四、数据表设计
+表名：question
+
+id (主键)
+
+content (题干)
+
+option_a / option_b / option_c / option_d
+
+answer (正确选项字母)
+
+explanation (解析)
+
+表名：wrong_question
+
+id (主键)
+
+user_id (用户ID，先写死一个测试用)
+
+question_id (外键)
+
+create_time
+
+五、核心逻辑说明
+顺序练习：按id顺序逐题加载，用户选完后立即判断对错，答错自动插入错题表
+
+模拟考试：随机取N道题，前端缓存用户答案，提交时批量后端校验
+
+错题本：查错题表联查题目详情，支持单条删除和清空
+
+六、关键配置
+后端端口：8080
+
+前端代理：vite.config.js 配置 proxy 指向 localhost:8080
