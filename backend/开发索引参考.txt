@@ -1,0 +1,192 @@
+驾考一点通 - 开发任务索引
+
+一、项目概述
+本项目是一个驾考辅助练习系统，围绕“题库练习、模拟考试、错题复盘、账号隔离”四个核心场景开发。
+
+当前已实现：
+1. 用户注册、登录、JWT 鉴权和当前用户信息读取。
+2. 首页仪表盘，展示题库数量、模拟考试规则、错题统计和功能入口。
+3. 顺序练习，按题库顺序逐题作答，答错后自动加入当前用户错题本。
+4. 模拟考试，随机抽取 20 道题，每题 5 分，选项作答后立即显示正确/错误反馈。
+5. 错题本，按当前用户查询错题，支持分页、删除单条错题、清空错题。
+6. 错题表通过唯一索引保证同一用户同一道题不会重复记录。
+
+二、技术栈
+前端：
+Vue 3、Vue Router、TypeScript、Vite、Element Plus
+
+后端：
+Spring Boot 4、Spring Web、Spring JDBC、JWT、自定义登录拦截器
+
+数据库：
+MySQL，字符集 utf8mb4
+
+三、项目目录
+frontend/
+  src/views/HomeView.vue              首页仪表盘
+  src/views/PracticeView.vue          顺序练习
+  src/views/ExamView.vue              模拟考试
+  src/views/WrongQuestionsView.vue    错题本
+  src/views/AuthView.vue              登录/注册
+  src/components/AppLayout.vue        通用侧边栏布局
+  src/components/AppPagination.vue    Element Plus 分页封装
+  src/services/api.ts                 前端请求封装，统一携带 Authorization
+  src/stores/auth.ts                  登录状态、token 和用户信息存储
+  src/router/index.ts                 路由与鉴权守卫
+  src/style.css                       全局页面样式
+
+backend/
+  controller/AuthController.java      登录、注册、当前用户接口
+  controller/QuestionController.java  题库、考试、错题接口
+  service/AuthService.java            账号注册登录逻辑
+  service/QuestionService.java        题库、错题、考试评分逻辑
+  security/JwtService.java            JWT 签发与解析
+  security/AuthInterceptor.java       后端鉴权拦截
+  security/CurrentUser.java           当前登录用户模型
+  model/Question.java                 题目模型
+  model/WrongQuestion.java            错题模型
+  model/AppUser.java                  用户模型
+  resources/SQL/schema.sql            表结构
+  resources/SQL/data.sql              初始化题库数据
+
+四、前端路由
+路径            页面                      说明
+/               redirect -> /home         默认跳转首页
+/home           HomeView                  首页仪表盘
+/practice       PracticeView              顺序练习，可未登录使用；登录后答错写入错题本
+/exam           ExamView                  模拟考试，需要登录
+/wrong          WrongQuestionsView        错题本，需要登录
+/login          AuthView                  登录
+/register       AuthView                  注册
+
+路由鉴权：
+ExamView 和 WrongQuestionsView 配置 requiresAuth。
+未登录访问受保护页面时，前端跳转到 /login，并携带 redirect 参数。
+已登录用户访问 /login 或 /register 时，跳回 /home。
+
+五、后端接口
+认证接口：
+接口名称        方法    路径                说明
+注册            POST    /api/auth/register  body: { username, password, nickname }，返回 token 和用户信息
+登录            POST    /api/auth/login     body: { username, password }，返回 token 和用户信息
+当前用户        GET     /api/auth/me        通过 Authorization 读取当前用户信息
+
+题库与错题接口：
+接口名称        方法    路径                         说明
+获取全部题目    GET     /api/questions                返回题库列表，按 id 升序
+随机抽题        GET     /api/questions/random         query: count，返回随机题目
+获取错题本      GET     /api/wrong-questions          返回当前用户错题列表
+添加错题        POST    /api/wrong-questions          body: { questionId }
+删除错题        DELETE  /api/wrong-questions/{id}     删除当前用户指定错题
+清空错题        DELETE  /api/wrong-questions          清空当前用户错题本
+提交考试        POST    /api/exam/submit              body: { answers: [{ questionId, answer }] }
+
+考试返回：
+ExamResult {
+  total: 题目总数,
+  correct: 答对数量,
+  score: 分数,
+  wrongQuestions: 错题列表
+}
+
+六、数据库表结构
+表名：users
+字段：
+id              BIGINT 主键，自增
+username        登录账号，唯一
+password_hash   密码哈希
+nickname        昵称
+create_time     创建时间
+
+表名：questions
+字段：
+id              BIGINT 主键
+content         题干
+option_a        A 选项
+option_b        B 选项
+option_c        C 选项
+option_d        D 选项
+answer          正确选项，A/B/C/D
+explanation     解析
+
+表名：wrong_questions
+字段：
+id              BIGINT 主键，自增
+user_id         用户 id，外键 users.id
+question_id     题目 id，外键 questions.id
+create_time     记录时间
+
+关键约束：
+UNIQUE KEY uk_wrong_user_question (user_id, question_id)
+作用：保证同一用户的同一道题只记录一次，避免错题本重复。
+
+七、核心业务逻辑
+1. 登录与鉴权
+用户登录或注册成功后，后端返回 JWT。
+前端将 token 和用户信息存入 localStorage。
+api.ts 每次请求自动添加 Authorization: Bearer token。
+后端 AuthInterceptor 解析 token，并把 CurrentUser 放入 request attribute。
+
+2. 顺序练习
+前端加载 /api/questions。
+每次展示一道题，用户选择后立即判断对错。
+答错并且已登录时，请求 POST /api/wrong-questions 写入错题。
+选项状态：正确答案标绿，用户选错的答案标红。
+
+3. 模拟考试
+进入页面后请求 /api/questions/random?count=20。
+每题 5 分，总分 100 分。
+用户选择答案后立即显示反馈：正确答案标绿，错误选择标红。
+提交时把全部答案发送到 /api/exam/submit。
+后端逐题校验答案，计算 score = correct * 5，并把错题写入 wrong_questions。
+考试页采用固定头部、内部题目区域滚动、底部提交栏固定的布局。
+
+4. 错题本
+错题本只展示当前登录用户的错题。
+后端通过 user_id 查询，前端按 question.id 再做一次去重展示。
+支持单条移除和全部清空。
+分页器使用 Element Plus 的 ElPagination，支持页码按钮、上一页/下一页、输入页码跳转。
+错题列表区域内部滚动，分页器固定在右下角。
+
+5. 首页
+首页用于展示项目主流程：
+顺序练习 -> 模拟考试 -> 错题复盘。
+同时展示题库数量、模拟考试题量和错题统计。
+桌面端首页按一屏仪表盘布局设计，避免出现整页滚动条。
+
+八、关键配置
+后端端口：
+8080
+
+前端开发端口：
+5173
+
+前端代理：
+vite.config.ts 中配置 /api 代理到 http://127.0.0.1:8080，并移除 /api 前缀。
+
+前端构建命令：
+npm install
+npm run build
+
+前端启动命令：
+npm run dev
+
+后端启动方式：
+使用 Maven Wrapper 或 IDE 启动 BackendApplication。
+项目 pom.xml 配置 Java 版本为 21，运行环境需使用 JDK 21。
+
+九、当前开发重点与可扩展任务
+已完成重点：
+1. 基础账号体系与接口鉴权。
+2. 题库查询、随机抽题、考试提交。
+3. 错题本自动记录、去重、分页、删除、清空。
+4. 前端主要页面视觉优化和滚动区域优化。
+
+后续可扩展：
+1. 增加题目分类，如科目一、科目四、交通标志、扣分罚款专题。
+2. 增加考试倒计时和交卷确认。
+3. 增加练习进度记录，支持断点继续。
+4. 增加错题重练模式。
+5. 增加管理员题库维护页面。
+6. 增加考试历史记录和分数趋势图。
+
