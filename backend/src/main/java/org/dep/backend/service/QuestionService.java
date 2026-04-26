@@ -13,6 +13,8 @@ import java.util.List;
 
 @Service
 public class QuestionService {
+    private static final int QUESTION_SCORE = 5;
+
     private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<Question> questionMapper = (rs, rowNum) -> new Question(
@@ -106,7 +108,7 @@ public class QuestionService {
         }
 
         int total = answers.size();
-        int score = total == 0 ? 0 : Math.round(correct * 100f / total);
+        int score = correct * QUESTION_SCORE;
         return new ExamResult(total, correct, score, wrong);
     }
 
