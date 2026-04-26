@@ -49,6 +49,7 @@ public class AuthService {
         }
 
         AppUser user = findByUsername(username);
+        assignDefaultRole(user.id(), "student");
         return toAuthResponse(user);
     }
 
@@ -66,12 +67,38 @@ public class AuthService {
 
     public UserProfile profile(CurrentUser currentUser) {
         AppUser user = findById(currentUser.id());
-        return new UserProfile(user.id(), user.username(), user.nickname());
+        return toUserProfile(user);
     }
 
     private AuthResponse toAuthResponse(AppUser user) {
         String token = jwtService.createToken(user.id(), user.username());
-        return new AuthResponse(token, new UserProfile(user.id(), user.username(), user.nickname()));
+        return new AuthResponse(token, toUserProfile(user));
+    }
+
+    private UserProfile toUserProfile(AppUser user) {
+        List<String> roles = findRoleCodes(user.id());
+        if (roles.isEmpty()) {
+            roles = List.of(user.username().equals("admin") ? "admin" : "student");
+        }
+        List<String> permissions = roles.contains("admin") ? List.of("*:*:*") : List.of("drive:study");
+        return new UserProfile(user.id(), user.username(), user.nickname(), roles, permissions);
+    }
+
+    private List<String> findRoleCodes(Long userId) {
+        return jdbcTemplate.queryForList("""
+                SELECT r.code
+                FROM user_roles ur
+                JOIN roles r ON r.id = ur.role_id
+                WHERE ur.user_id = ? AND r.enabled = 1
+                ORDER BY r.id
+                """, String.class, userId);
+    }
+
+    private void assignDefaultRole(Long userId, String roleCode) {
+        jdbcTemplate.update("""
+                INSERT IGNORE INTO user_roles (user_id, role_id)
+                SELECT ?, id FROM roles WHERE code = ?
+                """, userId, roleCode);
     }
 
     private AppUser findByUsername(String username) {

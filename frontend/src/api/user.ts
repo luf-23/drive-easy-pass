@@ -47,8 +47,8 @@ export const getLogin = async (data?: object) => {
       avatar: "",
       username: result.user.username,
       nickname: result.user.nickname,
-      roles: ["admin"],
-      permissions: ["*:*:*"],
+      roles: result.user.roles ?? ["student"],
+      permissions: result.user.permissions ?? ["drive:study"],
       accessToken: result.token,
       refreshToken: result.token,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)

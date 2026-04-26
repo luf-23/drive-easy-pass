@@ -29,9 +29,32 @@ export interface UserProfile {
   id: number
   username: string
   nickname: string
+  roles?: string[]
+  permissions?: string[]
 }
 
 export interface AuthResponse {
   token: string
   user: UserProfile
+}
+
+export interface AppRoute {
+  id: number
+  path: string
+  name: string
+  title: string
+  parentId: number | null
+  component: string
+  icon: string
+  rankNo: number
+  enabled: boolean
+}
+
+export interface Role {
+  id: number
+  code: string
+  name: string
+  description: string
+  enabled: boolean
+  routeIds: number[]
 }

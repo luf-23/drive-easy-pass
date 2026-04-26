@@ -50,6 +50,24 @@ export default {
       meta: {
         title: "报表中心"
       }
+    },
+    {
+      path: "/operation/system/routes",
+      name: "RouteManagement",
+      component: () => import("@/views/system/RouteManagementView.vue"),
+      meta: {
+        title: "路由管理",
+        roles: ["admin"]
+      }
+    },
+    {
+      path: "/operation/system/roles",
+      name: "RoleManagement",
+      component: () => import("@/views/system/RoleManagementView.vue"),
+      meta: {
+        title: "角色管理",
+        roles: ["admin"]
+      }
     }
   ]
 } satisfies RouteConfigsTable;

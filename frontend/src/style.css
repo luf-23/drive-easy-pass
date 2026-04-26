@@ -159,6 +159,143 @@ p {
   gap: 18px;
 }
 
+.system-page {
+  display: grid;
+  gap: 18px;
+}
+
+.system-panel {
+  padding: 24px;
+  border: 1px solid #dfe5da;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(33, 52, 41, 0.08);
+}
+
+.system-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.system-form label,
+.route-checks {
+  display: grid;
+  gap: 7px;
+  color: #455047;
+  font-weight: 700;
+}
+
+.system-form input,
+.system-form select {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dfe5da;
+  border-radius: 8px;
+  color: #17201b;
+  background: #fbfcfa;
+  outline: none;
+}
+
+.switch-line {
+  align-content: end;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.switch-line input,
+.route-checks input {
+  width: auto;
+  min-height: auto;
+}
+
+.wide-field,
+.route-checks,
+.system-form-actions {
+  grid-column: 1 / -1;
+}
+
+.system-form-actions,
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.system-table {
+  display: grid;
+  gap: 8px;
+}
+
+.system-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr 80px 80px 150px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fbfcfa;
+}
+
+.system-table-head {
+  color: #21483a;
+  font-weight: 800;
+  background: #edf4e8;
+}
+
+.role-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.route-checks {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 14px;
+  border-radius: 8px;
+  background: #fbfcfa;
+}
+
+.route-checks strong {
+  grid-column: 1 / -1;
+  color: #21483a;
+}
+
+.route-checks label {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.role-list {
+  display: grid;
+  gap: 12px;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #dfe5da;
+  border-radius: 8px;
+  background: #fbfcfa;
+}
+
+.role-item h3 {
+  margin-top: 4px;
+  color: #21483a;
+}
+
+.role-item p {
+  margin-top: 8px;
+  color: #627066;
+}
+
+.role-item small,
+.role-item span {
+  color: #627066;
+}
+
 .home-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -790,7 +927,11 @@ p {
 
   .home-grid,
   .exam-summary,
-  .compact-options {
+  .compact-options,
+  .system-form,
+  .role-form,
+  .route-checks,
+  .system-table-row {
     grid-template-columns: 1fr;
   }
 
@@ -798,7 +939,8 @@ p {
   .section-head,
   .wrong-item,
   .exam-footer,
-  .result-box {
+  .result-box,
+  .role-item {
     align-items: stretch;
     flex-direction: column;
   }

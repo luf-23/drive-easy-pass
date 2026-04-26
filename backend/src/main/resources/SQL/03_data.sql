@@ -107,3 +107,41 @@ INSERT INTO questions (id, content, option_a, option_b, option_c, option_d, answ
 (101, '驾驶机动车在同方向只有1条机动车道的城市道路上，最高时速不能超过多少？', '30公里/小时', '40公里/小时', '50公里/小时', '60公里/小时', 'C', '同方向1条机动车道的城市道路，最高时速50公里；公路为70公里。'),
 (102, '驾驶机动车在高速公路上行驶，车速超过100公里/小时时，安全距离应为多少米以上？', '50米', '80米', '100米', '150米', 'C', '车速超过100公里/小时，安全距离应保持100米以上。'),
 (103, '驾驶机动车在高速公路上行驶，车速低于100公里/小时时，安全距离不得少于多少米？', '30米', '50米', '80米', '100米', 'B', '车速低于100公里/小时，安全距离不得少于50米。');
+
+INSERT INTO roles (id, code, name, description, enabled) VALUES
+(1, 'admin', '管理员', '拥有中台全部管理权限', 1),
+(2, 'student', '学员', '可使用学员端练习、考试和错题功能', 1)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  description = VALUES(description),
+  enabled = VALUES(enabled);
+
+INSERT INTO app_routes (id, path, name, title, parent_id, component, icon, rank_no, enabled) VALUES
+(1, '/home', 'DriveHome', '学员首页', NULL, 'HomeView', 'ep/home-filled', 1, 1),
+(2, '/practice', 'Practice', '顺序练习', NULL, 'PracticeView', 'ep/edit-pen', 2, 1),
+(3, '/exam', 'Exam', '模拟考试', NULL, 'ExamView', 'ep/document-checked', 3, 1),
+(4, '/wrong', 'WrongQuestions', '错题本', NULL, 'WrongQuestionsView', 'ep/notebook', 4, 1),
+(5, '/operation/enrollment', 'Enrollment', '招生管理', NULL, 'WelcomeView', 'ep/user-filled', 10, 1),
+(6, '/operation/teaching', 'Teaching', '教学管理', NULL, 'WelcomeView', 'ep/reading', 11, 1),
+(7, '/operation/exam-service', 'ExamService', '报考服务', NULL, 'WelcomeView', 'ep/tickets', 12, 1),
+(8, '/operation/venue-route', 'VenueRoute', '考场线路', NULL, 'WelcomeView', 'ep/location', 13, 1),
+(9, '/operation/reports', 'Reports', '报表中心', NULL, 'WelcomeView', 'ep/data-analysis', 14, 1),
+(10, '/operation/system/routes', 'RouteManagement', '路由管理', NULL, 'SystemRouteView', 'ep/menu', 20, 1),
+(11, '/operation/system/roles', 'RoleManagement', '角色管理', NULL, 'SystemRoleView', 'ep/avatar', 21, 1)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  title = VALUES(title),
+  parent_id = VALUES(parent_id),
+  component = VALUES(component),
+  icon = VALUES(icon),
+  rank_no = VALUES(rank_no),
+  enabled = VALUES(enabled);
+
+INSERT IGNORE INTO role_routes (role_id, route_id)
+SELECT 1, id FROM app_routes;
+
+INSERT IGNORE INTO role_routes (role_id, route_id) VALUES
+(2, 1),
+(2, 2),
+(2, 3),
+(2, 4);

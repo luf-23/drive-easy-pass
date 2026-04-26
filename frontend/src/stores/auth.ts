@@ -40,8 +40,8 @@ export function setAuth(nextToken: string, nextUser: UserProfile) {
     avatar: '',
     username: nextUser.username,
     nickname: nextUser.nickname,
-    roles: ['admin'],
-    permissions: ['*:*:*'],
+    roles: nextUser.roles ?? ['student'],
+    permissions: nextUser.permissions ?? ['drive:study'],
   })
 }
 
