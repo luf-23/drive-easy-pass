@@ -215,3 +215,18 @@ router.afterEach(to => {
 });
 
 export default router;
+{
+  path: '/exam',
+    children: [
+  {
+    path: 'venues',
+    name: 'VenueList',
+    component: () => import('@/views/exam/VenueList.vue'),
+  },
+  {
+    path: 'venue/:id',
+    name: 'VenueDetail',
+    component: () => import('@/views/exam/VenueDetail.vue'),
+  },
+],
+}
