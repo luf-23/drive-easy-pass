@@ -215,6 +215,7 @@ router.afterEach(to => {
 });
 
 export default router;
+<<<<<<< HEAD
 {
   path: '/exam',
     children: [
@@ -230,3 +231,5 @@ export default router;
   },
 ],
 }
+=======
+>>>>>>> d2784eb1d76797c9fb979ce9d394b106b159d90f

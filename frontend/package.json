@@ -67,7 +67,10 @@
     "responsive-storage": "^2.2.0",
     "sortablejs": "^1.15.6",
     "vue": "^3.5.22",
+<<<<<<< HEAD
     "vue-demi": "^0.14.10",
+=======
+>>>>>>> d2784eb1d76797c9fb979ce9d394b106b159d90f
     "vue-router": "^4.6.3",
     "vue-tippy": "^6.7.1",
     "vue-types": "^6.0.0"
