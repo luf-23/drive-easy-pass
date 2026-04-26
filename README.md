@@ -30,8 +30,7 @@ npm install
       - 执行 backend/resources/SQL 文件中的 SQL 语句来创建数据库表。
 
    2. - 安装 Docker ，可以从 [Docker 官网](https://www.docker.com/get-started) 下载并安装。
-         - 在项目根目录创建 `.env` 文件（可从 `.env.example` 复制），并配置：
-
+      - 在项目根目录创建 `.env` 文件（可从 `.env.example` 复制），并配置：
             ```properties
             MYSQL_ROOT_PASSWORD=ChangeThisRootPass123!
             MYSQL_USER=drive_user

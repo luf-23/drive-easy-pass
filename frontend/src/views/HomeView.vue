@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppLayout from '../components/AppLayout.vue'
 import { request } from '../services/api'
 import { useAuth } from '../stores/auth'
 import type { Question, WrongQuestion } from '../types'
@@ -35,7 +34,7 @@ async function loadDashboard() {
 </script>
 
 <template>
-  <AppLayout>
+  <div class="drive-page">
     <div v-if="error" class="message error">{{ error }}</div>
     <div v-if="loading" class="message">正在加载数据...</div>
 
@@ -87,5 +86,5 @@ async function loadDashboard() {
         <RouterLink to="/wrong">查看错题</RouterLink>
       </article>
     </section>
-  </AppLayout>
+  </div>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import AppLayout from '../components/AppLayout.vue'
 import AppPagination from '../components/AppPagination.vue'
 import { request } from '../services/api'
 import { useAuth } from '../stores/auth'
@@ -81,7 +80,7 @@ function goPage(value: number) {
 </script>
 
 <template>
-  <AppLayout>
+  <div class="drive-page">
     <div v-if="error" class="message error">{{ error }}</div>
     <div v-if="loading" class="message">正在加载数据...</div>
 
@@ -118,5 +117,5 @@ function goPage(value: number) {
         @change="goPage"
       />
     </section>
-  </AppLayout>
+  </div>
 </template>

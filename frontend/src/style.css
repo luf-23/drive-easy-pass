@@ -154,6 +154,11 @@ p {
   padding: 32px;
 }
 
+.drive-page {
+  display: grid;
+  gap: 18px;
+}
+
 .home-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -805,4 +810,5 @@ p {
   .hero-actions {
     justify-content: flex-start;
   }
+
 }

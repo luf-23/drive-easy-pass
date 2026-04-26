@@ -1,3 +1,8 @@
+SET NAMES utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
 INSERT INTO questions (id, content, option_a, option_b, option_c, option_d, answer, explanation) VALUES
 (1, '机动车驾驶人初次申领机动车驾驶证后的实习期为多长时间？', '12个月', '24个月', '6个月', '18个月', 'A', '《机动车驾驶证申领和使用规定》规定：机动车驾驶人初次申请机动车驾驶证和增加准驾车型后的12个月为实习期。'),
 (2, '在路口遇这种情形怎样通行？', '停车让行', '加速直行', '鸣喇叭示意', '减速让行', 'A', '图中为停车让行标志，车辆必须在停止线外停车观察，确认安全后通行。'),

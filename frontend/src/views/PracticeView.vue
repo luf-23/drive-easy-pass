@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppLayout from '../components/AppLayout.vue'
 import { request } from '../services/api'
 import { useAuth } from '../stores/auth'
 import type { OptionKey, Question } from '../types'
@@ -56,7 +55,7 @@ function nextQuestion() {
 </script>
 
 <template>
-  <AppLayout>
+  <div class="drive-page">
     <div v-if="error" class="message error">{{ error }}</div>
     <div v-if="loading" class="message">正在加载数据...</div>
 
@@ -101,5 +100,5 @@ function nextQuestion() {
         <button class="primary" @click="nextQuestion">下一题</button>
       </div>
     </section>
-  </AppLayout>
+  </div>
 </template>

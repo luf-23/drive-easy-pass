@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import { removeToken, setToken } from '@/utils/auth'
 import type { UserProfile } from '../types'
 
 const token = ref(localStorage.getItem('drive_easy_pass_token') ?? '')
@@ -32,6 +33,16 @@ export function setAuth(nextToken: string, nextUser: UserProfile) {
   user.value = nextUser
   localStorage.setItem('drive_easy_pass_token', nextToken)
   localStorage.setItem('drive_easy_pass_user', JSON.stringify(nextUser))
+  setToken({
+    accessToken: nextToken,
+    refreshToken: nextToken,
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    avatar: '',
+    username: nextUser.username,
+    nickname: nextUser.nickname,
+    roles: ['admin'],
+    permissions: ['*:*:*'],
+  })
 }
 
 export function logout() {
@@ -39,4 +50,5 @@ export function logout() {
   user.value = null
   localStorage.removeItem('drive_easy_pass_token')
   localStorage.removeItem('drive_easy_pass_user')
+  removeToken()
 }
