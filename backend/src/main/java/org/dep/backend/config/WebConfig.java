@@ -20,7 +20,10 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/login",
                         "/auth/register",
                         "/questions",
-                        "/questions/random"
+                        "/questions/random",
+                        "/api/exam/venues/**",      // 考场信息公开
+                        "/api/exam/routes/**",       // 线路图公开
+                        "/api/exam/schedules/**"
                 );
     }
 }
