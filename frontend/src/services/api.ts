@@ -1,6 +1,6 @@
 import { logout, useAuth } from '../stores/auth'
 
-const apiBase = '/api'
+const apiBase = 'http://localhost:8080'
 
 export async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const { token } = useAuth()

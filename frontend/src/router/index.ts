@@ -48,9 +48,7 @@ const modules: Record<string, any> = import.meta.glob(
   }
 );
 
-/** 原始静态路由（未做任何处理） */
 const routes = [];
-
 Object.keys(modules).forEach(key => {
   routes.push(modules[key].default);
 });
@@ -215,21 +213,3 @@ router.afterEach(to => {
 });
 
 export default router;
-<<<<<<< HEAD
-{
-  path: '/exam',
-    children: [
-  {
-    path: 'venues',
-    name: 'VenueList',
-    component: () => import('@/views/exam/VenueList.vue'),
-  },
-  {
-    path: 'venue/:id',
-    name: 'VenueDetail',
-    component: () => import('@/views/exam/VenueDetail.vue'),
-  },
-],
-}
-=======
->>>>>>> d2784eb1d76797c9fb979ce9d394b106b159d90f

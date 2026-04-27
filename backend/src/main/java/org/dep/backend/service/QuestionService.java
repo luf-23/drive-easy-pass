@@ -48,24 +48,36 @@ public class QuestionService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Question> findAll() {
-        return jdbcTemplate.query("""
+    public List<Question> findAll(String examType) {
+        if (examType != null && !examType.isBlank()) {
+            return jdbcTemplate.query("""
                 SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
                 FROM questions
+                WHERE exam_type = ?
                 ORDER BY id
-                """, questionMapper);
-    }
-
-    public List<Question> findRandom(int count) {
-        int safeCount = Math.max(count, 1);
+                """, questionMapper, examType);
+        }
         return jdbcTemplate.query("""
-                SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
-                FROM questions
-                ORDER BY RAND()
-                LIMIT ?
-                """, questionMapper, safeCount);
+            SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
+            FROM questions
+            ORDER BY id
+            """, questionMapper);
     }
 
+    public List<Question> findRandom(int count, String examType) {
+        int safeCount = Math.max(count, 1);
+        if (examType != null && !examType.isBlank()) {
+            return jdbcTemplate.query("""
+                SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
+                FROM questions WHERE exam_type = ?
+                ORDER BY RAND() LIMIT ?
+                """, questionMapper, examType, safeCount);
+        }
+        return jdbcTemplate.query("""
+            SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
+            FROM questions ORDER BY RAND() LIMIT ?
+            """, questionMapper, safeCount);
+    }
     public List<WrongQuestion> findWrongQuestions(Long userId) {
         return jdbcTemplate.query(wrongQuestionSql() + " WHERE w.user_id = ? ORDER BY w.create_time DESC", wrongQuestionMapper, userId);
     }

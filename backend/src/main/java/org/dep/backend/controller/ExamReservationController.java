@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/exam")
@@ -27,13 +28,15 @@ public class ExamReservationController {
     }
 
     @PostMapping("/cancel/{reservationId}")
-    public ResponseEntity<String> cancel(@PathVariable Long reservationId, HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> cancel(
+            @PathVariable Long reservationId,
+            HttpServletRequest request
+    ) {
         CurrentUser user = (CurrentUser) request.getAttribute("currentUser");
         if (user == null) throw new IllegalArgumentException("请先登录");
         service.cancel(user.id(), reservationId);
-        return ResponseEntity.ok("取消成功");
+        return ResponseEntity.ok(Map.of("message", "取消成功"));
     }
-
     @PostMapping("/score")
     public ExamReservationDTO recordScore(@RequestBody ExamScoreRequest req) {
         return service.recordScore(req);

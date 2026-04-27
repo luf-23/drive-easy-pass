@@ -37,13 +37,33 @@ const reserve = async (scheduleId: number) => {
       method: 'POST',
       body: JSON.stringify({ scheduleId }),
     })
+    if (venue.value?.examType) {
+      localStorage.setItem('reservedExamType', venue.value.examType)
+    }
     alert('预约成功！')
     loadDetail()
   } catch (err) {
     alert(err instanceof Error ? err.message : '预约失败')
   }
 }
+const cancelReserve = async (scheduleId: number) => {
+  if (!confirm('确定取消该场次的预约吗？')) return
+  try {
+    const reservations = await request<any[]>(`/api/exam/my-reservations`)
+    const reservation = reservations.find((r: any) => r.scheduleId === scheduleId && r.status === 'RESERVED')
 
+    if (!reservation) {
+      alert('未找到该场次的预约记录')
+      return
+    }
+
+    await request(`/api/exam/cancel/${reservation.id}`, { method: 'POST' })
+    alert('取消成功！')
+    location.reload()  // 直接刷新整个页面
+  } catch (err) {
+    alert(err instanceof Error ? err.message : '取消失败')
+  }
+}
 onMounted(loadDetail)
 </script>
 
@@ -85,13 +105,21 @@ onMounted(loadDetail)
             <span>{{ s.examType }}</span>
             <span class="slots">剩余：{{ s.availableSlots }}/{{ s.totalSlots }}</span>
           </div>
-          <button
-            class="primary"
-            :disabled="s.availableSlots <= 0"
-            @click="reserve(s.id)"
-          >
-            {{ s.availableSlots > 0 ? '预约' : '已满' }}
-          </button>
+          <div style="display: flex; gap: 8px;">
+            <button
+              style="padding: 8px 20px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer;"
+              :disabled="s.availableSlots <= 0"
+              @click="reserve(s.id)"
+            >
+              {{ s.availableSlots > 0 ? '预约' : '已满' }}
+            </button>
+            <button
+              style="padding: 8px 20px; background: #ff4d4f; color: white; border: none; border-radius: 4px; cursor: pointer;"
+              @click="cancelReserve(s.id)"
+            >
+              取消
+            </button>
+          </div>
         </div>
         <p v-if="schedules.length === 0" class="empty">暂无可用考试安排</p>
       </section>

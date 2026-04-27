@@ -10,52 +10,69 @@ const practiceIndex = ref(0)
 const selectedAnswer = ref<OptionKey | ''>('')
 const loading = ref(false)
 const error = ref('')
-const optionKeys: OptionKey[] = ['A', 'B', 'C', 'D']
+const practiceExamType = ref(localStorage.getItem('reservedExamType') || '科目一')
+
+const switchPracticeExamType = (type: string) => {
+practiceExamType.value = type
+localStorage.setItem('reservedExamType', type)
+loadQuestions()
+}
+
+const optionKeys = computed<OptionKey[]>(() => {
+const q = currentQuestion.value
+if (!q) return ['A', 'B', 'C', 'D']
+if (!q.optionC && !q.optionD) return ['A', 'B']
+return ['A', 'B', 'C', 'D']
+})
 
 const currentQuestion = computed(() => questions.value[practiceIndex.value])
 const progress = computed(() => {
-  if (!questions.value.length) return '0 / 0'
-  return `${practiceIndex.value + 1} / ${questions.value.length}`
+if (!questions.value.length) return '0 / 0'
+return `${practiceIndex.value + 1} / ${questions.value.length}`
 })
 
 onMounted(loadQuestions)
 
 async function loadQuestions() {
-  loading.value = true
-  error.value = ''
-
-  try {
-    questions.value = await request<Question[]>('/questions')
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : '题库加载失败'
-  } finally {
-    loading.value = false
-  }
+loading.value = true
+error.value = ''
+try {
+questions.value = await request<Question[]>(`/questions/random?count=20&examType=${practiceExamType.value}`)
+} catch (err) {
+error.value = err instanceof Error ? err.message : '题库加载失败'
+} finally {
+loading.value = false
+}
 }
 
 function optionText(question: Question, key: OptionKey) {
-  return question[`option${key}` as keyof Question] as string
+return question[`option${key}` as keyof Question] as string
 }
 
 async function chooseAnswer(answer: OptionKey) {
-  selectedAnswer.value = answer
-  const question = currentQuestion.value
-  if (question && answer !== question.answer && isLoggedIn.value) {
-    await request('/wrong-questions', {
-      method: 'POST',
-      body: JSON.stringify({ questionId: question.id }),
-    })
-  }
+selectedAnswer.value = answer
+const question = currentQuestion.value
+if (question && answer !== question.answer && isLoggedIn.value) {
+await request('/wrong-questions', {
+method: 'POST',
+body: JSON.stringify({ questionId: question.id }),
+})
+}
 }
 
 function nextQuestion() {
-  selectedAnswer.value = ''
-  practiceIndex.value = (practiceIndex.value + 1) % questions.value.length
+selectedAnswer.value = ''
+practiceIndex.value = (practiceIndex.value + 1) % questions.value.length
 }
 </script>
 
 <template>
   <div class="drive-page">
+    <div class="exam-type-switch">
+      <button :class="{ active: practiceExamType === '科目一' }" @click="switchPracticeExamType('科目一')">📝 科目一</button>
+      <button :class="{ active: practiceExamType === '科目四' }" @click="switchPracticeExamType('科目四')">🛡️ 科目四</button>
+    </div>
+
     <div v-if="error" class="message error">{{ error }}</div>
     <div v-if="loading" class="message">正在加载数据...</div>
 
@@ -102,3 +119,8 @@ function nextQuestion() {
     </section>
   </div>
 </template>
+<style scoped>
+.exam-type-switch { display: flex; gap: 15px; margin-bottom: 20px; }
+.exam-type-switch button { padding: 12px 40px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+.exam-type-switch button.active { background: #1890ff; color: white; }
+</style>

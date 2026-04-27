@@ -19,13 +19,14 @@ public class ExamReservationService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
     @Transactional
     public ExamReservationDTO reserve(Long userId, Long scheduleId) {
         // 检查考试安排
         var list = jdbcTemplate.query("""
-                SELECT s.*, v.venue_name FROM exam_schedules s
-                JOIN exam_venues v ON s.venue_id=v.id WHERE s.id=?
-                """, (rs, rowNum) -> new Object() {
+            SELECT s.*, v.venue_name FROM exam_schedules s
+            JOIN exam_venues v ON s.venue_id=v.id WHERE s.id=?
+            """, (rs, rowNum) -> new Object() {
             Long venueId = rs.getLong("venue_id");
             String examType = rs.getString("exam_type");
             LocalDate examDate = rs.getDate("exam_date").toLocalDate();
@@ -43,19 +44,41 @@ public class ExamReservationService {
         if (s.availableSlots <= 0) throw new IllegalArgumentException("该场次已满");
         if (s.examDate.isBefore(LocalDate.now())) throw new IllegalArgumentException("不能预约过去的考试");
 
-        // 检查重复预约
+        // 检查是否已预约同一场次
         int count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM exam_reservations WHERE user_id=? AND schedule_id=? AND status!='CANCELLED'",
+                "SELECT COUNT(*) FROM exam_reservations WHERE user_id=? AND schedule_id=? AND status='RESERVED'",
                 Integer.class, userId, scheduleId);
         if (count > 0) throw new IllegalArgumentException("已预约该场次");
 
-        // 插入预约
+        // 取消该用户同类型的所有旧预约
+        List<Long> oldReservations = jdbcTemplate.queryForList(
+                "SELECT id FROM exam_reservations WHERE user_id=? AND exam_type=? AND status='RESERVED'",
+                Long.class, userId, s.examType);
+
+        for (Long oldId : oldReservations) {
+            Long oldScheduleId = jdbcTemplate.queryForObject(
+                    "SELECT schedule_id FROM exam_reservations WHERE id=?", Long.class, oldId);
+            jdbcTemplate.update("UPDATE exam_reservations SET status='CANCELLED' WHERE id=?", oldId);
+            jdbcTemplate.update("UPDATE exam_schedules SET reserved_slots=reserved_slots-1 WHERE id=?", oldScheduleId);
+        }
         jdbcTemplate.update("""
                 INSERT INTO exam_reservations (user_id, schedule_id, venue_id, exam_type, exam_date, start_time, status)
                 VALUES (?, ?, ?, ?, ?, ?, 'RESERVED')
                 """, userId, scheduleId, s.venueId, s.examType, s.examDate, s.startTime);
 
+        // 更新考试安排的已预约数
         jdbcTemplate.update("UPDATE exam_schedules SET reserved_slots=reserved_slots+1 WHERE id=?", scheduleId);
+
+        // 同步更新考场的可预约数
+        jdbcTemplate.update("""
+                UPDATE exam_venues v
+                SET v.available_slots = (
+                    SELECT COALESCE(SUM(s.total_slots - s.reserved_slots), 0)
+                    FROM exam_schedules s
+                    WHERE s.venue_id = v.id AND s.status = 'OPEN'
+                )
+                WHERE v.id = ?
+        """, s.venueId);
 
         Long newId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         return getDetail(userId, newId);
@@ -66,8 +89,20 @@ public class ExamReservationService {
         var r = findById(reservationId);
         if (!r.userId().equals(userId)) throw new IllegalArgumentException("无权操作");
         if (!"RESERVED".equals(r.status())) throw new IllegalArgumentException("状态不允许取消");
+
         jdbcTemplate.update("UPDATE exam_reservations SET status='CANCELLED' WHERE id=? AND user_id=?", reservationId, userId);
         jdbcTemplate.update("UPDATE exam_schedules SET reserved_slots=reserved_slots-1 WHERE id=?", r.scheduleId());
+
+        // 同步考场的可预约数
+        jdbcTemplate.update("""
+        UPDATE exam_venues v
+        SET v.available_slots = (
+            SELECT COALESCE(SUM(s.total_slots - s.reserved_slots), 0)
+            FROM exam_schedules s
+            WHERE s.venue_id = v.id AND s.status = 'OPEN'
+        )
+        WHERE v.id = ?
+    """, r.venueId());
     }
 
     public ExamReservationDTO recordScore(ExamScoreRequest req) {
