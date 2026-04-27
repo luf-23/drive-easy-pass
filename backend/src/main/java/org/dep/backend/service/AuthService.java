@@ -3,33 +3,24 @@ package org.dep.backend.service;
 import org.dep.backend.dto.AuthRequest;
 import org.dep.backend.dto.AuthResponse;
 import org.dep.backend.dto.UserProfile;
+import org.dep.backend.mapper.AuthMapper;
 import org.dep.backend.model.AppUser;
 import org.dep.backend.security.CurrentUser;
 import org.dep.backend.security.JwtService;
 import org.dep.backend.security.PasswordHasher;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class AuthService {
-    private final JdbcTemplate jdbcTemplate;
+    private final AuthMapper authMapper;
     private final PasswordHasher passwordHasher;
     private final JwtService jwtService;
 
-    private final RowMapper<AppUser> userMapper = (rs, rowNum) -> new AppUser(
-            rs.getLong("id"),
-            rs.getString("username"),
-            rs.getString("password_hash"),
-            rs.getString("nickname"),
-            rs.getTimestamp("create_time").toLocalDateTime()
-    );
-
-    public AuthService(JdbcTemplate jdbcTemplate, PasswordHasher passwordHasher, JwtService jwtService) {
-        this.jdbcTemplate = jdbcTemplate;
+    public AuthService(AuthMapper authMapper, PasswordHasher passwordHasher, JwtService jwtService) {
+        this.authMapper = authMapper;
         this.passwordHasher = passwordHasher;
         this.jwtService = jwtService;
     }
@@ -40,10 +31,7 @@ public class AuthService {
         String nickname = normalizeNickname(request.nickname(), username);
 
         try {
-            jdbcTemplate.update("""
-                    INSERT INTO users (username, password_hash, nickname)
-                    VALUES (?, ?, ?)
-                    """, username, passwordHasher.hash(password), nickname);
+            authMapper.insertUser(username, passwordHasher.hash(password), nickname);
         } catch (DuplicateKeyException ex) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -85,44 +73,27 @@ public class AuthService {
     }
 
     private List<String> findRoleCodes(Long userId) {
-        return jdbcTemplate.queryForList("""
-                SELECT r.code
-                FROM user_roles ur
-                JOIN roles r ON r.id = ur.role_id
-                WHERE ur.user_id = ? AND r.enabled = 1
-                ORDER BY r.id
-                """, String.class, userId);
+        return authMapper.findRoleCodes(userId);
     }
 
     private void assignDefaultRole(Long userId, String roleCode) {
-        jdbcTemplate.update("""
-                INSERT IGNORE INTO user_roles (user_id, role_id)
-                SELECT ?, id FROM roles WHERE code = ?
-                """, userId, roleCode);
+        authMapper.assignRoleByCode(userId, roleCode);
     }
 
     private AppUser findByUsername(String username) {
-        List<AppUser> users = jdbcTemplate.query("""
-                SELECT id, username, password_hash, nickname, create_time
-                FROM users
-                WHERE username = ?
-                """, userMapper, username);
-        if (users.isEmpty()) {
+        AppUser user = authMapper.findByUsername(username);
+        if (user == null) {
             throw new IllegalArgumentException("Invalid username or password");
         }
-        return users.getFirst();
+        return user;
     }
 
     private AppUser findById(Long id) {
-        List<AppUser> users = jdbcTemplate.query("""
-                SELECT id, username, password_hash, nickname, create_time
-                FROM users
-                WHERE id = ?
-                """, userMapper, id);
-        if (users.isEmpty()) {
+        AppUser user = authMapper.findById(id);
+        if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
-        return users.getFirst();
+        return user;
     }
 
     private String normalizeUsername(String username) {

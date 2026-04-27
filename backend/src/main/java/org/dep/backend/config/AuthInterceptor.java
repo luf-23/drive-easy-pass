@@ -17,6 +17,12 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String path = request.getRequestURI();
+
+        // 放行不需要登录的路径
+        if (path.startsWith("/auth/") || path.startsWith("/questions") || path.startsWith("/exam/venues") || path.startsWith("/exam/routes") || path.startsWith("/exam/schedules")) {
+            return true;
+        }
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }

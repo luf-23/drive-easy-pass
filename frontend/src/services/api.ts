@@ -1,17 +1,18 @@
 import { logout, useAuth } from '../stores/auth'
 
-const apiBase = '/api'
-
 export async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const { token } = useAuth()
   const headers = new Headers(options?.headers)
   headers.set('Content-Type', 'application/json')
 
+  // Always go through Vite proxy in dev; avoid duplicating /api for legacy callers.
+  const normalizedUrl = url.startsWith('/api/') ? url : `/api${url}`
+
   if (token.value) {
     headers.set('Authorization', `Bearer ${token.value}`)
   }
 
-  const response = await fetch(`${apiBase}${url}`, {
+  const response = await fetch(normalizedUrl, {
     ...options,
     headers,
   })

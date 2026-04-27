@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS questions (
   option_b VARCHAR(255) NOT NULL,
   option_c VARCHAR(255) NOT NULL,
   option_d VARCHAR(255) NOT NULL,
+  exam_type VARCHAR(20) NOT NULL DEFAULT '科目一',
   answer CHAR(1) NOT NULL,
   explanation VARCHAR(500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

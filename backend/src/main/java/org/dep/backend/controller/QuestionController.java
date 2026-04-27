@@ -30,15 +30,17 @@ public class QuestionController {
     }
 
     @GetMapping("/questions")
-    public List<Question> questions() {
-        return questionService.findAll();
+    public List<Question> questions(@RequestParam(required = false) String examType) {
+        return questionService.findAll(examType);
     }
 
     @GetMapping("/questions/random")
-    public List<Question> randomQuestions(@RequestParam(defaultValue = "5") int count) {
-        return questionService.findRandom(count);
+    public List<Question> randomQuestions(
+            @RequestParam(defaultValue = "5") int count,
+            @RequestParam(required = false) String examType
+    ) {
+        return questionService.findRandom(count, examType);
     }
-
     @GetMapping("/wrong-questions")
     public List<WrongQuestion> wrongQuestions(HttpServletRequest request) {
         return questionService.findWrongQuestions(currentUser(request).id());
