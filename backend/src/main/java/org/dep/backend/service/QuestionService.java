@@ -14,8 +14,10 @@ import java.util.List;
 @Service
 public class QuestionService {
     private static final int QUESTION_SCORE = 5;
+    private static final String DEFAULT_EXAM_TYPE = "科目一";
 
     private final JdbcTemplate jdbcTemplate;
+    private volatile Boolean hasExamTypeColumn;
 
     private final RowMapper<Question> questionMapper = (rs, rowNum) -> new Question(
             rs.getLong("id"),
@@ -49,7 +51,7 @@ public class QuestionService {
     }
 
     public List<Question> findAll(String examType) {
-        if (examType != null && !examType.isBlank()) {
+        if (examType != null && !examType.isBlank() && ensureExamTypeColumn()) {
             return jdbcTemplate.query("""
                 SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
                 FROM questions
@@ -66,12 +68,17 @@ public class QuestionService {
 
     public List<Question> findRandom(int count, String examType) {
         int safeCount = Math.max(count, 1);
-        if (examType != null && !examType.isBlank()) {
-            return jdbcTemplate.query("""
+        if (examType != null && !examType.isBlank() && ensureExamTypeColumn()) {
+            List<Question> filtered = jdbcTemplate.query("""
                 SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
                 FROM questions WHERE exam_type = ?
                 ORDER BY RAND() LIMIT ?
                 """, questionMapper, examType, safeCount);
+
+            // Fallback to all questions when selected exam type has no seeded data.
+            if (!filtered.isEmpty()) {
+                return filtered;
+            }
         }
         return jdbcTemplate.query("""
             SELECT id, content, option_a, option_b, option_c, option_d, answer, explanation
@@ -139,6 +146,35 @@ public class QuestionService {
 
     private String normalizeAnswer(String answer) {
         return answer == null ? "" : answer.trim().toUpperCase();
+    }
+
+    private boolean ensureExamTypeColumn() {
+        if (hasExamTypeColumn != null) {
+            return hasExamTypeColumn;
+        }
+
+        synchronized (this) {
+            if (hasExamTypeColumn != null) {
+                return hasExamTypeColumn;
+            }
+
+            Integer count = jdbcTemplate.queryForObject("""
+                    SELECT COUNT(*)
+                    FROM information_schema.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'questions'
+                      AND COLUMN_NAME = 'exam_type'
+                    """, Integer.class);
+
+            if (count != null && count > 0) {
+                hasExamTypeColumn = true;
+                return true;
+            }
+
+            jdbcTemplate.execute("ALTER TABLE questions ADD COLUMN exam_type VARCHAR(20) NOT NULL DEFAULT '" + DEFAULT_EXAM_TYPE + "'");
+            hasExamTypeColumn = true;
+            return true;
+        }
     }
 
     private String wrongQuestionSql() {

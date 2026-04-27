@@ -12,28 +12,12 @@ const optionKeys: OptionKey[] = ['A', 'B', 'C', 'D']
 const examCount = 20
 const questionScore = 5
 
-const currentExamType = ref(localStorage.getItem('reservedExamType') || '')
+const currentExamType = ref(localStorage.getItem('reservedExamType') || '科目一')
 const switchExamType = (type: string) => {
-  if (type !== localStorage.getItem('reservedExamType')) {
-    alert(`请先在「考场信息」中预约${type}考试`)
-    return
-  }
   currentExamType.value = type
   localStorage.setItem('reservedExamType', type)
   startExam()
 }
-const hasReserved = ref(false)
-
-const checkReserved = () => {
-  const type = localStorage.getItem('reservedExamType')
-  hasReserved.value = type === '科目一' || type === '科目四'
-}
-
-checkReserved()
-
-window.addEventListener('storage', () => {
-  checkReserved()
-})
 const answeredCount = computed(() => Object.keys(examAnswers.value).length)
 const examProgress = computed(() => `${answeredCount.value} / ${examQuestions.value.length}`)
 
@@ -97,14 +81,10 @@ async function submitExam() {
 
 <template>
   <div class="drive-page">
-    <div v-if="hasReserved" class="exam-type-switch">
+    <div class="exam-type-switch">
       <button :class="{ active: currentExamType === '科目一' }" @click="switchExamType('科目一')">📝 科目一</button>
       <button :class="{ active: currentExamType === '科目四' }" @click="switchExamType('科目四')">🛡️ 科目四</button>
     </div>
-    <div v-else class="no-reserve">
-      请先在「考场信息」中预约科目一或科目四考试
-    </div>
-
 
     <div v-if="error" class="message error">{{ error }}</div>
     <div v-if="loading" class="message">正在加载数据...</div>
