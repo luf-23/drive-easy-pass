@@ -1,9 +1,10 @@
 package org.dep.backend.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     private final AuthInterceptor authInterceptor;
@@ -21,12 +22,10 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/register",
                         "/questions",
                         "/questions/random",
-                        "/public/**",
-                        "/exam/venues/**",      // 考场信息公开
-                        "/exam/routes/**",       // 线路图公开
-                        "/exam/schedules/**"
+                        "/public/**"
                 );
     }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
