@@ -20,7 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/login",
                         "/auth/register",
                         "/questions",
-                        "/questions/random"
+                    "/questions/random",
+                    "/public/**"
                 );
     }
 }

@@ -1,5 +1,7 @@
 package org.dep.backend.service;
 
+import java.util.List;
+
 import org.dep.backend.dto.AppRouteDto;
 import org.dep.backend.dto.AppRouteRequest;
 import org.dep.backend.dto.RoleDto;
@@ -8,8 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class AdminService {
@@ -44,6 +44,24 @@ public class AdminService {
         return count != null && count > 0;
     }
 
+    public boolean hasAnyRole(Long userId, List<String> roleCodes) {
+        if (roleCodes == null || roleCodes.isEmpty()) {
+            return false;
+        }
+        String placeholders = String.join(",", roleCodes.stream().map(code -> "?").toList());
+        List<Object> args = new java.util.ArrayList<>();
+        args.add(userId);
+        args.addAll(roleCodes);
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*)
+                FROM user_roles ur
+                JOIN roles r ON r.id = ur.role_id
+                WHERE ur.user_id = ?
+                  AND r.enabled = 1
+                  AND r.code IN (""" + placeholders + ")", Integer.class, args.toArray());
+        return count != null && count > 0;
+    }
+
     public List<AppRouteDto> routes() {
         return jdbcTemplate.query("""
                 SELECT id, path, name, title, parent_id, component, icon, rank_no, enabled
@@ -64,7 +82,7 @@ public class AdminService {
                 request.parentId(),
                 normalizeNullable(request.component()),
                 normalizeNullable(request.icon()),
-                request.rankNo() == null ? 0 : request.rankNo(),
+                safeRank(request.rankNo()),
                 request.enabled() == null || request.enabled()
         );
         Long id = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
@@ -84,7 +102,7 @@ public class AdminService {
                 request.parentId(),
                 normalizeNullable(request.component()),
                 normalizeNullable(request.icon()),
-                request.rankNo() == null ? 0 : request.rankNo(),
+                safeRank(request.rankNo()),
                 request.enabled() == null || request.enabled(),
                 id
         );
@@ -215,5 +233,9 @@ public class AdminService {
 
     private String normalizeNullable(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private int safeRank(Integer rankNo) {
+        return rankNo == null ? 0 : rankNo;
     }
 }

@@ -14,9 +14,10 @@ export default {
     {
       path: "/operation/enrollment",
       name: "Enrollment",
-      component: () => import("@/views/welcome/index.vue"),
+      component: () => import("@/views/operation/EnrollmentManagementView.vue"),
       meta: {
-        title: "招生管理"
+        title: "招生管理",
+        roles: ["admin", "sales", "market", "coach"]
       }
     },
     {

@@ -110,7 +110,10 @@ INSERT INTO questions (id, content, option_a, option_b, option_c, option_d, answ
 
 INSERT INTO roles (id, code, name, description, enabled) VALUES
 (1, 'admin', '管理员', '拥有中台全部管理权限', 1),
-(2, 'student', '学员', '可使用学员端练习、考试和错题功能', 1)
+(2, 'student', '学员', '可使用学员端练习、考试和错题功能', 1),
+(3, 'sales', '招生销售', '负责线索跟进与报名转化', 1),
+(4, 'market', '市场人员', '负责渠道投放与线索运营', 1),
+(5, 'coach', '教练', '负责学员承接与教学前沟通', 1)
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
   description = VALUES(description),

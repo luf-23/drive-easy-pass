@@ -18,6 +18,7 @@
     "baseUrl": ".",
     "allowJs": false,
     "resolveJsonModule": true,
+    "ignoreDeprecations": "6.0",
     "lib": [
       "ESNext",
       "DOM"
