@@ -10,14 +10,28 @@ const practiceIndex = ref(0)
 const selectedAnswer = ref<OptionKey | ''>('')
 const loading = ref(false)
 const error = ref('')
-const practiceExamType = ref(localStorage.getItem('reservedExamType') || '科目一')
+const practiceExamType = ref(localStorage.getItem('reservedExamType') || '')
 
 const switchPracticeExamType = (type: string) => {
-practiceExamType.value = type
-localStorage.setItem('reservedExamType', type)
-loadQuestions()
+  if (type !== localStorage.getItem('reservedExamType')) {
+    alert(`请先在「考场信息」中预约${type}考试`)
+    return
+  }
+  practiceExamType.value = type
+  loadQuestions()
+}
+const hasReserved = ref(false)
+
+const checkReserved = () => {
+  const type = localStorage.getItem('reservedExamType')
+  hasReserved.value = type === '科目一' || type === '科目四'
 }
 
+checkReserved()
+
+window.addEventListener('storage', () => {
+  checkReserved()
+})
 const optionKeys = computed<OptionKey[]>(() => {
 const q = currentQuestion.value
 if (!q) return ['A', 'B', 'C', 'D']
@@ -34,15 +48,19 @@ return `${practiceIndex.value + 1} / ${questions.value.length}`
 onMounted(loadQuestions)
 
 async function loadQuestions() {
-loading.value = true
-error.value = ''
-try {
-questions.value = await request<Question[]>(`/questions/random?count=20&examType=${practiceExamType.value}`)
-} catch (err) {
-error.value = err instanceof Error ? err.message : '题库加载失败'
-} finally {
-loading.value = false
-}
+  loading.value = true
+  error.value = ''
+  try {
+    const type = practiceExamType.value
+    const url = type
+      ? `/questions/random?count=20&examType=${type}`
+      : `/questions/random?count=20`
+    questions.value = await request<Question[]>(url)
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : '题库加载失败'
+  } finally {
+    loading.value = false
+  }
 }
 
 function optionText(question: Question, key: OptionKey) {
@@ -68,9 +86,12 @@ practiceIndex.value = (practiceIndex.value + 1) % questions.value.length
 
 <template>
   <div class="drive-page">
-    <div class="exam-type-switch">
+    <div v-if="hasReserved" class="exam-type-switch">
       <button :class="{ active: practiceExamType === '科目一' }" @click="switchPracticeExamType('科目一')">📝 科目一</button>
       <button :class="{ active: practiceExamType === '科目四' }" @click="switchPracticeExamType('科目四')">🛡️ 科目四</button>
+    </div>
+    <div v-else class="no-reserve">
+      请先在「考场信息」中预约科目一或科目四考试
     </div>
 
     <div v-if="error" class="message error">{{ error }}</div>
@@ -105,13 +126,7 @@ practiceIndex.value = (practiceIndex.value + 1) % questions.value.length
 
       <div v-if="selectedAnswer" class="answer-card">
         <strong>
-          {{
-            selectedAnswer === currentQuestion.answer
-              ? '回答正确'
-              : isLoggedIn
-                ? '回答错误，已加入错题本'
-                : '回答错误，登录后可保存错题'
-          }}
+          {{ selectedAnswer === currentQuestion.answer ? '回答正确' : isLoggedIn ? '回答错误，已加入错题本' : '回答错误，登录后可保存错题' }}
         </strong>
         <p>正确答案：{{ currentQuestion.answer }}。{{ currentQuestion.explanation }}</p>
         <button class="primary" @click="nextQuestion">下一题</button>

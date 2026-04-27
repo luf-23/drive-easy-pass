@@ -50,20 +50,32 @@ const cancelReserve = async (scheduleId: number) => {
   if (!confirm('确定取消该场次的预约吗？')) return
   try {
     const reservations = await request<any[]>(`/api/exam/my-reservations`)
-    const reservation = reservations.find((r: any) => r.scheduleId === scheduleId && r.status === 'RESERVED')
-
+    const reservation = reservations.find(
+      (r: any) => r.scheduleId === scheduleId && r.status === 'RESERVED'
+    )
     if (!reservation) {
       alert('未找到该场次的预约记录')
       return
     }
-
     await request(`/api/exam/cancel/${reservation.id}`, { method: 'POST' })
+
+    // 检查是否还有其他预约
+    const remaining = reservations.filter(
+      (r: any) => r.status === 'RESERVED' && r.id !== reservation.id
+    )
+    if (remaining.length > 0) {
+      localStorage.setItem('reservedExamType', remaining[0].examType)
+    } else {
+      localStorage.removeItem('reservedExamType')
+    }
+
     alert('取消成功！')
-    location.reload()  // 直接刷新整个页面
+    location.reload()
   } catch (err) {
     alert(err instanceof Error ? err.message : '取消失败')
   }
 }
+
 onMounted(loadDetail)
 </script>
 
