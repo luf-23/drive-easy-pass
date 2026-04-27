@@ -2,12 +2,15 @@ node_modules
 .DS_Store
 dist
 dist-ssr
+.vite
 *.local
 .eslintcache
 report.html
 vite.config.*.timestamp*
 
 yarn.lock
+package-lock.json
+drive_easy_pass_backup*.sql
 npm-debug.log*
 .pnpm-error.log*
 .pnpm-debug.log
