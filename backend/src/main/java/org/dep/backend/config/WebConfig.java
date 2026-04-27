@@ -21,9 +21,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/auth/register",
                         "/questions",
                         "/questions/random",
-                        "/api/exam/venues/**",      // 考场信息公开
-                        "/api/exam/routes/**",       // 线路图公开
-                        "/api/exam/schedules/**"
+                    "/exam/venues/**",      // 考场信息公开
+                    "/exam/routes/**",       // 线路图公开
+                    "/exam/schedules/**"
                 );
     }
     @Override

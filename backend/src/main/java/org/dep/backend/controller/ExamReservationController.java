@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/exam")
+@RequestMapping("/exam")
 public class ExamReservationController {
 
     private final ExamReservationService service;

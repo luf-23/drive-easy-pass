@@ -20,7 +20,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         String path = request.getRequestURI();
 
         // 放行不需要登录的路径
-        if (path.startsWith("/auth/") || path.startsWith("/questions") || path.startsWith("/api/exam/venues") || path.startsWith("/api/exam/routes") || path.startsWith("/api/exam/schedules")) {
+        if (path.startsWith("/auth/") || path.startsWith("/questions") || path.startsWith("/exam/venues") || path.startsWith("/exam/routes") || path.startsWith("/exam/schedules")) {
             return true;
         }
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
