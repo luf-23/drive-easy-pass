@@ -140,43 +140,38 @@ INSERT INTO questions (id, content, option_a, option_b, option_c, option_d, exam
 (132, '机动车在坡道起步时防止后溜的关键操作是？', '加大油门后松手刹', '油离配合并及时松驻车制动', '空挡滑行起步', '先松制动再慢踩离合', '科目四', 'B', '坡道起步应油离配合，控制半联动并配合驻车制动。'),
 (133, '驾驶机动车在隧道内发生事故后，首要做法是？', '立即掉头驶离', '开启危险报警闪光灯并设置警示', '下车在车道内拦车', '关闭车辆全部灯光', '科目四', 'B', '隧道事故应先警示后处置，防止二次追尾。');
 
-INSERT INTO roles (id, code, name, description, enabled) VALUES
-(1, 'admin', '管理员', '拥有中台全部管理权限', 1),
-(2, 'student', '学员', '可使用学员端练习、考试和错题功能', 1),
-(3, 'sales', '招生销售', '负责线索跟进与报名转化', 1),
-(4, 'market', '市场人员', '负责渠道投放与线索运营', 1),
-(5, 'coach', '教练', '负责学员承接与教学前沟通', 1)
-ON DUPLICATE KEY UPDATE
-  name = VALUES(name),
-  description = VALUES(description),
-  enabled = VALUES(enabled);
-
-INSERT INTO app_routes (id, path, name, title, parent_id, component, icon, rank_no, enabled) VALUES
-(1, '/home', 'DriveHome', '学员首页', NULL, 'HomeView', 'ep/home-filled', 1, 1),
-(2, '/practice', 'Practice', '顺序练习', NULL, 'PracticeView', 'ep/edit-pen', 2, 1),
-(3, '/exam', 'Exam', '模拟考试', NULL, 'ExamView', 'ep/document-checked', 3, 1),
-(4, '/wrong', 'WrongQuestions', '错题本', NULL, 'WrongQuestionsView', 'ep/notebook', 4, 1),
-(5, '/operation/enrollment', 'Enrollment', '招生管理', NULL, 'WelcomeView', 'ep/user-filled', 10, 1),
-(6, '/operation/teaching', 'Teaching', '教学管理', NULL, 'WelcomeView', 'ep/reading', 11, 1),
-(7, '/operation/exam-service', 'ExamService', '报考服务', NULL, 'WelcomeView', 'ep/tickets', 12, 1),
-(8, '/operation/venue-route', 'VenueRoute', '考场线路', NULL, 'WelcomeView', 'ep/location', 13, 1),
-(9, '/operation/reports', 'Reports', '报表中心', NULL, 'WelcomeView', 'ep/data-analysis', 14, 1),
-(10, '/operation/system/routes', 'RouteManagement', '路由管理', NULL, 'SystemRouteView', 'ep/menu', 20, 1),
-(11, '/operation/system/roles', 'RoleManagement', '角色管理', NULL, 'SystemRoleView', 'ep/avatar', 21, 1)
+INSERT INTO app_routes (id, path, name, title, parent_id, redirect, component, icon, rank_no, enabled) VALUES
+(1, '/drive', 'DriveBusiness', '驾考业务', NULL, '/home', 'Layout', 'ep/guide', 1, 1),
+(2, '/home', 'DriveHome', '学员首页', 1, '', 'HomeView', 'ep/home-filled', 1, 1),
+(3, '/practice', 'Practice', '顺序练习', 1, '', 'PracticeView', 'ep/edit-pen', 2, 1),
+(4, '/exam', 'Exam', '模拟考试', 1, '', 'ExamView', 'ep/document-checked', 3, 1),
+(5, '/wrong', 'WrongQuestions', '错题本', 1, '', 'WrongQuestionsView', 'ep/notebook', 4, 1),
+(6, '/exam/venues', 'VenueList', '考场列表', 1, '', 'VenueList', 'ep/location', 5, 1),
+(10, '/operation', 'OperationCenter', '中台管理', NULL, '/operation/enrollment', 'Layout', 'ep/data-board', 2, 1),
+(11, '/operation/enrollment', 'Enrollment', '招生管理', 10, '', 'EnrollmentManagementView', 'ep/user-filled', 10, 1),
+(12, '/operation/teaching', 'Teaching', '教学管理', 10, '', 'WelcomeView', 'ep/reading', 11, 1),
+(13, '/operation/exam-service', 'ExamService', '报考服务', 10, '', 'WelcomeView', 'ep/tickets', 12, 1),
+(14, '/operation/venue-route', 'VenueRoute', '考场线路', 10, '', 'WelcomeView', 'ep/location', 13, 1),
+(15, '/operation/reports', 'Reports', '报表中心', 10, '', 'WelcomeView', 'ep/data-analysis', 14, 1),
+(16, '/operation/system/routes', 'RouteManagement', '路由管理', 10, '', 'SystemRouteView', 'ep/menu', 20, 1),
+(17, '/operation/system/roles', 'RoleManagement', '角色管理', 10, '', 'SystemRoleView', 'ep/avatar', 21, 1)
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
   title = VALUES(title),
   parent_id = VALUES(parent_id),
+  redirect = VALUES(redirect),
   component = VALUES(component),
   icon = VALUES(icon),
   rank_no = VALUES(rank_no),
   enabled = VALUES(enabled);
 
-INSERT IGNORE INTO role_routes (role_id, route_id)
-SELECT 1, id FROM app_routes;
+INSERT IGNORE INTO role_routes (role, route_id)
+SELECT 'admin', id FROM app_routes;
 
-INSERT IGNORE INTO role_routes (role_id, route_id) VALUES
-(2, 1),
-(2, 2),
-(2, 3),
-(2, 4);
+INSERT IGNORE INTO role_routes (role, route_id) VALUES
+('student', 1),
+('student', 2),
+('student', 3),
+('student', 4),
+('student', 5),
+('student', 6);

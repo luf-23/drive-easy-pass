@@ -44,6 +44,7 @@ export interface AppRoute {
   name: string
   title: string
   parentId: number | null
+  redirect: string
   component: string
   icon: string
   rankNo: number

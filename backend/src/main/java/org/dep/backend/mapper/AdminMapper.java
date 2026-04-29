@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.dep.backend.dto.AppRouteDto;
-import org.dep.backend.mapper.projection.RoleBaseRecord;
 
 import java.util.List;
 
@@ -15,23 +14,26 @@ import java.util.List;
 public interface AdminMapper {
 
     @Select("""
+            SELECT role
+            FROM users
+            WHERE id = #{userId}
+            """)
+    String findUserRole(@Param("userId") Long userId);
+
+    @Select("""
             SELECT COUNT(*)
-            FROM user_roles ur
-            JOIN roles r ON r.id = ur.role_id
-            WHERE ur.user_id = #{userId}
-              AND r.code = 'admin'
-              AND r.enabled = 1
+            FROM users
+            WHERE id = #{userId}
+              AND role = 'admin'
             """)
     Integer countAdminRole(@Param("userId") Long userId);
 
     @Select({
         "<script>",
         "SELECT COUNT(*)",
-        "FROM user_roles ur",
-        "JOIN roles r ON r.id = ur.role_id",
-        "WHERE ur.user_id = #{userId}",
-        "  AND r.enabled = 1",
-        "  AND r.code IN",
+        "FROM users",
+        "WHERE id = #{userId}",
+        "  AND role IN",
         "  <foreach item='item' collection='roleCodes' open='(' separator=',' close=')'>",
         "    #{item}",
         "  </foreach>",
@@ -45,6 +47,7 @@ public interface AdminMapper {
                    name,
                    title,
                    parent_id AS parentId,
+                   redirect,
                    component,
                    icon,
                    rank_no AS rankNo,
@@ -55,11 +58,31 @@ public interface AdminMapper {
     List<AppRouteDto> listRoutes();
 
     @Select("""
+            SELECT ar.id,
+                   ar.path,
+                   ar.name,
+                   ar.title,
+                   ar.parent_id AS parentId,
+                   ar.redirect,
+                   ar.component,
+                   ar.icon,
+                   ar.rank_no AS rankNo,
+                   ar.enabled
+            FROM app_routes ar
+            JOIN role_routes rr ON rr.route_id = ar.id
+            WHERE rr.role = #{role}
+              AND ar.enabled = 1
+            ORDER BY ar.rank_no, ar.id
+            """)
+    List<AppRouteDto> listRoutesByRole(@Param("role") String role);
+
+    @Select("""
             SELECT id,
                    path,
                    name,
                    title,
                    parent_id AS parentId,
+                   redirect,
                    component,
                    icon,
                    rank_no AS rankNo,
@@ -70,13 +93,14 @@ public interface AdminMapper {
     AppRouteDto findRouteById(@Param("id") Long id);
 
     @Insert("""
-            INSERT INTO app_routes (path, name, title, parent_id, component, icon, rank_no, enabled)
-            VALUES (#{path}, #{name}, #{title}, #{parentId}, #{component}, #{icon}, #{rankNo}, #{enabled})
+            INSERT INTO app_routes (path, name, title, parent_id, redirect, component, icon, rank_no, enabled)
+            VALUES (#{path}, #{name}, #{title}, #{parentId}, #{redirect}, #{component}, #{icon}, #{rankNo}, #{enabled})
             """)
     int insertRoute(@Param("path") String path,
                     @Param("name") String name,
                     @Param("title") String title,
                     @Param("parentId") Long parentId,
+                    @Param("redirect") String redirect,
                     @Param("component") String component,
                     @Param("icon") String icon,
                     @Param("rankNo") Integer rankNo,
@@ -88,6 +112,7 @@ public interface AdminMapper {
                 name = #{name},
                 title = #{title},
                 parent_id = #{parentId},
+                redirect = #{redirect},
                 component = #{component},
                 icon = #{icon},
                 rank_no = #{rankNo},
@@ -99,6 +124,7 @@ public interface AdminMapper {
                     @Param("name") String name,
                     @Param("title") String title,
                     @Param("parentId") Long parentId,
+                    @Param("redirect") String redirect,
                     @Param("component") String component,
                     @Param("icon") String icon,
                     @Param("rankNo") Integer rankNo,
@@ -114,70 +140,19 @@ public interface AdminMapper {
     Long lastInsertId();
 
     @Select("""
-            SELECT id,
-                   code,
-                   name,
-                   description,
-                   enabled
-            FROM roles
-            ORDER BY id
-            """)
-    List<RoleBaseRecord> listRoles();
-
-    @Select("""
-            SELECT id,
-                   code,
-                   name,
-                   description,
-                   enabled
-            FROM roles
-            WHERE id = #{id}
-            """)
-    RoleBaseRecord findRoleById(@Param("id") Long id);
-
-    @Select("""
             SELECT route_id
             FROM role_routes
-            WHERE role_id = #{roleId}
+            WHERE role = #{role}
             ORDER BY route_id
             """)
-    List<Long> listRouteIdsByRoleId(@Param("roleId") Long roleId);
+    List<Long> listRouteIdsByRole(@Param("role") String role);
+
+    @Delete("DELETE FROM role_routes WHERE role = #{role}")
+    int deleteRoleRoutesByRole(@Param("role") String role);
 
     @Insert("""
-            INSERT INTO roles (code, name, description, enabled)
-            VALUES (#{code}, #{name}, #{description}, #{enabled})
+            INSERT IGNORE INTO role_routes (role, route_id)
+            VALUES (#{role}, #{routeId})
             """)
-    int insertRole(@Param("code") String code,
-                   @Param("name") String name,
-                   @Param("description") String description,
-                   @Param("enabled") Boolean enabled);
-
-    @Update("""
-            UPDATE roles
-            SET code = #{code},
-                name = #{name},
-                description = #{description},
-                enabled = #{enabled}
-            WHERE id = #{id}
-            """)
-    int updateRole(@Param("id") Long id,
-                   @Param("code") String code,
-                   @Param("name") String name,
-                   @Param("description") String description,
-                   @Param("enabled") Boolean enabled);
-
-    @Delete("DELETE FROM role_routes WHERE role_id = #{roleId}")
-    int deleteRoleRoutesByRoleId(@Param("roleId") Long roleId);
-
-    @Insert("""
-            INSERT IGNORE INTO role_routes (role_id, route_id)
-            VALUES (#{roleId}, #{routeId})
-            """)
-    int insertRoleRoute(@Param("roleId") Long roleId, @Param("routeId") Long routeId);
-
-    @Delete("DELETE FROM user_roles WHERE role_id = #{roleId}")
-    int deleteUserRolesByRoleId(@Param("roleId") Long roleId);
-
-    @Delete("DELETE FROM roles WHERE id = #{id}")
-    int deleteRoleById(@Param("id") Long id);
+    int insertRoleRoute(@Param("role") String role, @Param("routeId") Long routeId);
 }

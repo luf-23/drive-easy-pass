@@ -155,8 +155,12 @@ p {
 }
 
 .drive-page {
-  display: grid;
-  gap: 18px;
+  height: calc(100vh - 138px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
 }
 
 .system-page {
@@ -303,8 +307,9 @@ p {
 }
 
 .home-dashboard {
-  height: calc(100vh - 64px);
-  grid-template-rows: minmax(210px, 0.9fr) minmax(108px, auto) minmax(132px, auto);
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-rows: minmax(180px, 0.82fr) minmax(96px, auto) minmax(126px, auto);
   overflow: hidden;
 }
 
@@ -335,7 +340,7 @@ p {
 
 .home-dashboard .hero-panel {
   min-height: 0;
-  padding: 28px 32px;
+  padding: 24px 28px;
 }
 
 .driving-hero {
@@ -348,8 +353,8 @@ p {
 .hero-panel h2 {
   max-width: 680px;
   margin-top: 10px;
-  font-size: 38px;
-  line-height: 1.16;
+  font-size: 30px;
+  line-height: 1.22;
 }
 
 .hero-panel p {
@@ -364,6 +369,7 @@ p {
   flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .metric {
@@ -393,8 +399,8 @@ p {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 24px;
+  gap: 8px;
+  padding: 18px;
   border: 1px solid #dfe5da;
   border-radius: 8px;
   background: #fff;
@@ -403,8 +409,8 @@ p {
 
 .route-card span {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   place-items: center;
   border-radius: 50%;
   color: #fff;
@@ -413,40 +419,83 @@ p {
 }
 
 .route-card h3 {
-  font-size: 22px;
+  font-size: 18px;
   color: #21483a;
 }
 
 .route-card p {
   color: #627066;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .route-card a {
   margin-top: auto;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.35;
   color: #d07824;
   font-weight: 800;
 }
 
 .panel {
-  padding: 26px;
+  padding: 18px;
 }
 
+.practice-panel,
 .exam-panel {
-  height: calc(100vh - 64px);
+  min-height: 0;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
+.practice-panel .section-head {
+  flex: 0 0 auto;
+}
+
+.practice-head {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e6ece2;
+}
+
+.practice-panel .option-list {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #9fbaaa #edf4e8;
+}
+
+.practice-panel .option-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.practice-panel .option-list::-webkit-scrollbar-track {
+  background: #edf4e8;
+  border-radius: 999px;
+}
+
+.practice-panel .option-list::-webkit-scrollbar-thumb {
+  background: #9fbaaa;
+  border-radius: 999px;
+}
+
+.practice-panel .answer-card {
+  flex: 0 0 auto;
+}
+
 .exam-fixed-head {
   flex: 0 0 auto;
   z-index: 5;
-  margin: 0 0 18px;
-  padding: 0 0 18px;
+  margin: 0 0 12px;
+  padding: 0 0 12px;
   border-bottom: 1px solid #dfe5da;
   background: #fff;
-  box-shadow: 0 12px 18px rgba(33, 52, 41, 0.08);
 }
 
 .section-head {
@@ -454,13 +503,14 @@ p {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .section-head h2 {
-  margin-top: 8px;
-  font-size: 25px;
+  margin-top: 6px;
+  font-size: 18px;
   line-height: 1.35;
+  font-weight: 700;
 }
 
 .pill {
@@ -473,30 +523,33 @@ p {
 .option-list,
 .exam-list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .option,
 .compact-options button {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 10px 12px;
   border: 1px solid #dfe5da;
   border-radius: 8px;
   color: #17201b;
+  font-size: 14px;
+  line-height: 1.45;
   text-align: left;
   background: #fbfcfa;
 }
 
 .compact-options button b {
   display: grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
   place-items: center;
   border-radius: 50%;
+  font-size: 13px;
   color: #fff;
   background: #4f7665;
 }
@@ -513,11 +566,12 @@ p {
 
 .option b {
   display: grid;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
   place-items: center;
   border-radius: 50%;
+  font-size: 13px;
   color: #fff;
   background: #4f7665;
 }
@@ -555,16 +609,32 @@ p {
 .answer-card,
 .result-box,
 .empty-state {
-  margin-top: 18px;
-  padding: 18px;
+  margin-top: 12px;
+  padding: 14px;
   border-radius: 8px;
   background: #edf4e8;
 }
 
 .answer-card p,
 .result-box p {
-  margin: 8px 0 14px;
-  line-height: 1.7;
+  margin: 6px 0 0;
+  color: #455047;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.practice-feedback {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #d9e6d6;
+}
+
+.practice-feedback.empty {
+  color: #627066;
+  background: #f7faf7;
 }
 
 .primary,
@@ -572,10 +642,12 @@ p {
 .danger {
   display: inline-grid;
   place-items: center;
-  min-height: 40px;
-  padding: 10px 16px;
+  min-height: 34px;
+  padding: 7px 13px;
   border-radius: 8px;
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -613,7 +685,7 @@ p {
 
 .exam-item,
 .wrong-item {
-  padding: 18px;
+  padding: 14px;
   border: 1px solid #dfe5da;
   border-radius: 8px;
   background: #fbfcfa;
@@ -621,9 +693,10 @@ p {
 
 .exam-item h3,
 .wrong-item h3 {
-  margin-bottom: 12px;
-  font-size: 17px;
-  line-height: 1.5;
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 700;
 }
 
 .compact-options {
@@ -645,6 +718,81 @@ p {
   color: #21483a;
   font-weight: 700;
   background: #edf4e8;
+}
+
+.exam-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.exam-title {
+  min-width: 0;
+}
+
+.exam-title h2 {
+  margin-top: 4px;
+  color: #17201b;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.exam-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exam-meta {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid #dfe5da;
+  border-radius: 8px;
+  color: #455047;
+  font-size: 13px;
+  font-weight: 700;
+  background: #f7faf7;
+  white-space: nowrap;
+}
+
+.exam-type-switch {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  margin: 0;
+  padding: 3px;
+  border: 1px solid #d8e2d8;
+  border-radius: 8px;
+  background: #f7faf7;
+}
+
+.exam-type-switch button {
+  min-height: 32px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #455047;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  background: transparent;
+}
+
+.exam-type-switch button:hover {
+  color: #21483a;
+  background: #edf4e8;
+}
+
+.exam-type-switch button.active {
+  border-color: #b9cbbd;
+  color: #21483a;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(33, 52, 41, 0.1);
 }
 
 .exam-scroll {
@@ -673,11 +821,12 @@ p {
 .exam-feedback {
   display: grid;
   gap: 6px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  border-left: 4px solid #d9893d;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #d9893d;
   border-radius: 8px;
   color: #455047;
+  font-size: 13px;
   background: #fff9ef;
 }
 
@@ -691,9 +840,12 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-top: 18px;
-  padding: 16px 0 0;
+  margin-top: 12px;
+  padding: 12px 0 0;
   border-top: 1px solid #dfe5da;
+  color: #627066;
+  font-size: 13px;
+  font-weight: 700;
   background: #fff;
 }
 
@@ -714,7 +866,8 @@ p {
 }
 
 .wrong-book-panel {
-  height: calc(100vh - 64px);
+  min-height: 0;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -776,7 +929,7 @@ p {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid #dfe5da;
 }
@@ -913,12 +1066,16 @@ p {
   }
 
   .home-dashboard,
+  .drive-page,
+  .practice-panel,
   .exam-panel,
   .wrong-book-panel {
     height: auto;
+    min-height: 0;
     overflow: visible;
   }
 
+  .practice-panel .option-list,
   .exam-scroll,
   .wrong-list-scroll {
     overflow: visible;
@@ -937,8 +1094,11 @@ p {
 
   .hero-panel,
   .section-head,
+  .exam-toolbar,
+  .exam-actions,
   .wrong-item,
   .exam-footer,
+  .practice-feedback,
   .result-box,
   .role-item {
     align-items: stretch;

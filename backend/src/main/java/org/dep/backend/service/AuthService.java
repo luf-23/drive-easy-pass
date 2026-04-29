@@ -11,8 +11,6 @@ import org.dep.backend.security.PasswordHasher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class AuthService {
     private final AuthMapper authMapper;
@@ -37,7 +35,6 @@ public class AuthService {
         }
 
         AppUser user = findByUsername(username);
-        assignDefaultRole(user.id(), "student");
         return toAuthResponse(user);
     }
 
@@ -64,20 +61,20 @@ public class AuthService {
     }
 
     private UserProfile toUserProfile(AppUser user) {
-        List<String> roles = findRoleCodes(user.id());
-        if (roles.isEmpty()) {
-            roles = List.of(user.username().equals("admin") ? "admin" : "student");
-        }
-        List<String> permissions = roles.contains("admin") ? List.of("*:*:*") : List.of("drive:study");
+        String role = normalizeRole(user);
+        var roles = java.util.List.of(role);
+        var permissions = "admin".equals(role) ? java.util.List.of("*:*:*") : java.util.List.of("drive:study");
         return new UserProfile(user.id(), user.username(), user.nickname(), roles, permissions);
     }
 
-    private List<String> findRoleCodes(Long userId) {
-        return authMapper.findRoleCodes(userId);
-    }
-
-    private void assignDefaultRole(Long userId, String roleCode) {
-        authMapper.assignRoleByCode(userId, roleCode);
+    private String normalizeRole(AppUser user) {
+        if ("admin".equals(user.username())) {
+            return "admin";
+        }
+        if ("admin".equals(user.role()) || "student".equals(user.role())) {
+            return user.role();
+        }
+        return "student";
     }
 
     private AppUser findByUsername(String username) {

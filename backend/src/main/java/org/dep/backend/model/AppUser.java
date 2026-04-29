@@ -7,6 +7,7 @@ public record AppUser(
         String username,
         String passwordHash,
         String nickname,
+        String role,
         LocalDateTime createTime
 ) {
 }

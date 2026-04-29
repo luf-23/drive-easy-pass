@@ -5,6 +5,7 @@ public record AppRouteRequest(
         String name,
         String title,
         Long parentId,
+        String redirect,
         String component,
         String icon,
         Integer rankNo,

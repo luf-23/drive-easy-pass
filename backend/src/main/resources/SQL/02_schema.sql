@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(50) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   nickname VARCHAR(50) NOT NULL,
+  role ENUM('student', 'admin') NOT NULL DEFAULT 'student',
   create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uk_users_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -38,34 +39,13 @@ CREATE TABLE IF NOT EXISTS wrong_questions (
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS roles (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  code VARCHAR(50) NOT NULL,
-  name VARCHAR(50) NOT NULL,
-  description VARCHAR(255) NOT NULL DEFAULT '',
-  enabled TINYINT(1) NOT NULL DEFAULT 1,
-  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY uk_roles_code (code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS user_roles (
-  user_id BIGINT NOT NULL,
-  role_id BIGINT NOT NULL,
-  PRIMARY KEY (user_id, role_id),
-  CONSTRAINT fk_user_role_user
-    FOREIGN KEY (user_id) REFERENCES users (id)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_user_role_role
-    FOREIGN KEY (role_id) REFERENCES roles (id)
-    ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE IF NOT EXISTS app_routes (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   path VARCHAR(120) NOT NULL,
   name VARCHAR(80) NOT NULL,
   title VARCHAR(80) NOT NULL,
   parent_id BIGINT NULL,
+  redirect VARCHAR(120) NOT NULL DEFAULT '',
   component VARCHAR(160) NOT NULL DEFAULT '',
   icon VARCHAR(80) NOT NULL DEFAULT '',
   rank_no INT NOT NULL DEFAULT 0,
@@ -78,12 +58,9 @@ CREATE TABLE IF NOT EXISTS app_routes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS role_routes (
-  role_id BIGINT NOT NULL,
+  role ENUM('student', 'admin') NOT NULL,
   route_id BIGINT NOT NULL,
-  PRIMARY KEY (role_id, route_id),
-  CONSTRAINT fk_role_route_role
-    FOREIGN KEY (role_id) REFERENCES roles (id)
-    ON DELETE CASCADE,
+  PRIMARY KEY (role, route_id),
   CONSTRAINT fk_role_route_route
     FOREIGN KEY (route_id) REFERENCES app_routes (id)
     ON DELETE CASCADE

@@ -7,7 +7,7 @@ import org.dep.backend.dto.AppRouteRequest;
 import org.dep.backend.dto.RoleDto;
 import org.dep.backend.dto.RoleRequest;
 import org.dep.backend.mapper.AdminMapper;
-import org.dep.backend.mapper.projection.RoleBaseRecord;
+import org.dep.backend.security.CurrentUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +39,11 @@ public class AdminService {
         return adminMapper.listRoutes();
     }
 
+    public List<AppRouteDto> routesForUser(CurrentUser currentUser) {
+        String role = roleOf(currentUser.id(), currentUser.username());
+        return adminMapper.listRoutesByRole(role);
+    }
+
     public AppRouteDto createRoute(AppRouteRequest request) {
         validateRoute(request);
         adminMapper.insertRoute(
@@ -46,6 +51,7 @@ public class AdminService {
             normalize(request.name()),
             normalize(request.title()),
             request.parentId(),
+            normalizeNullable(request.redirect()),
             normalizeNullable(request.component()),
             normalizeNullable(request.icon()),
             request.rankNo() == null ? 0 : request.rankNo(),
@@ -63,6 +69,7 @@ public class AdminService {
             normalize(request.name()),
             normalize(request.title()),
             request.parentId(),
+            normalizeNullable(request.redirect()),
             normalizeNullable(request.component()),
             normalizeNullable(request.icon()),
             request.rankNo() == null ? 0 : request.rankNo(),
@@ -78,81 +85,60 @@ public class AdminService {
     }
 
     public List<RoleDto> roles() {
-        return adminMapper.listRoles().stream()
-            .map(role -> new RoleDto(
-                role.id(),
-                role.code(),
-                role.name(),
-                role.description(),
-                role.enabled(),
-                routeIdsByRole(role.id())
-            ))
-            .toList();
+        return List.of(
+            new RoleDto(1L, "student", "学员", "学员端学习、考试、错题等功能", true, routeIdsByRole("student")),
+            new RoleDto(2L, "admin", "管理员", "可访问全部中台管理功能", true, routeIdsByRole("admin"))
+        );
     }
 
-    @Transactional
     public RoleDto createRole(RoleRequest request) {
-        validateRole(request);
-        adminMapper.insertRole(
-                normalize(request.code()),
-                normalize(request.name()),
-                normalizeNullable(request.description()),
-                request.enabled() == null || request.enabled()
-        );
-        Long id = adminMapper.lastInsertId();
-        replaceRoleRoutes(id, request.routeIds());
-        return findRole(id);
+        throw new IllegalArgumentException("Roles are fixed: student and admin");
     }
 
     @Transactional
     public RoleDto updateRole(Long id, RoleRequest request) {
-        validateRole(request);
-        adminMapper.updateRole(
-                id,
-                normalize(request.code()),
-                normalize(request.name()),
-                normalizeNullable(request.description()),
-                request.enabled() == null || request.enabled()
-        );
-        replaceRoleRoutes(id, request.routeIds());
-        return findRole(id);
+        String role = roleCodeById(id);
+        replaceRoleRoutes(role, request.routeIds());
+        return roles().stream()
+            .filter(item -> item.id().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Role not found"));
     }
 
-    @Transactional
     public void deleteRole(Long id) {
-        adminMapper.deleteRoleRoutesByRoleId(id);
-        adminMapper.deleteUserRolesByRoleId(id);
-        adminMapper.deleteRoleById(id);
+        throw new IllegalArgumentException("Roles are fixed: student and admin");
+    }
+
+    private String roleOf(Long userId, String username) {
+        if ("admin".equals(username)) {
+            return "admin";
+        }
+        String role = adminMapper.findUserRole(userId);
+        if ("admin".equals(role) || "student".equals(role)) {
+            return role;
+        }
+        return "student";
+    }
+
+    private String roleCodeById(Long id) {
+        if (Long.valueOf(1L).equals(id)) return "student";
+        if (Long.valueOf(2L).equals(id)) return "admin";
+        throw new IllegalArgumentException("Role not found");
     }
 
     private AppRouteDto findRoute(Long id) {
         return adminMapper.findRouteById(id);
     }
 
-    private RoleDto findRole(Long id) {
-        RoleBaseRecord role = adminMapper.findRoleById(id);
-        if (role == null) {
-            throw new IllegalArgumentException("Role not found");
-        }
-        return new RoleDto(
-                role.id(),
-                role.code(),
-                role.name(),
-                role.description(),
-                role.enabled(),
-                routeIdsByRole(role.id())
-        );
+    private List<Long> routeIdsByRole(String role) {
+        return adminMapper.listRouteIdsByRole(role);
     }
 
-    private List<Long> routeIdsByRole(Long roleId) {
-        return adminMapper.listRouteIdsByRoleId(roleId);
-    }
-
-    private void replaceRoleRoutes(Long roleId, List<Long> routeIds) {
-        adminMapper.deleteRoleRoutesByRoleId(roleId);
+    private void replaceRoleRoutes(String role, List<Long> routeIds) {
+        adminMapper.deleteRoleRoutesByRole(role);
         if (routeIds == null) return;
         for (Long routeId : routeIds) {
-            adminMapper.insertRoleRoute(roleId, routeId);
+            adminMapper.insertRoleRoute(role, routeId);
         }
     }
 
@@ -162,24 +148,11 @@ public class AdminService {
         }
     }
 
-    private void validateRole(RoleRequest request) {
-        if (request == null || normalize(request.code()).isBlank() || normalize(request.name()).isBlank()) {
-            throw new IllegalArgumentException("Role code and name are required");
-        }
-        if (!normalize(request.code()).matches("[A-Za-z0-9_:-]{2,50}")) {
-            throw new IllegalArgumentException("Role code format is invalid");
-        }
-    }
-
     private String normalize(String value) {
         return value == null ? "" : value.trim();
     }
 
     private String normalizeNullable(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private int safeRank(Integer rankNo) {
-        return rankNo == null ? 0 : rankNo;
     }
 }

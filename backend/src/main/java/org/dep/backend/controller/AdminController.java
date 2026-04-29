@@ -81,9 +81,17 @@ public class AdminController {
     }
 
     private void requireAdmin(HttpServletRequest request) {
-        CurrentUser currentUser = (CurrentUser) request.getAttribute("currentUser");
-        if (currentUser == null || !adminService.isAdmin(currentUser.id(), currentUser.username())) {
+        CurrentUser currentUser = requireLogin(request);
+        if (!adminService.isAdmin(currentUser.id(), currentUser.username())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin role required");
         }
+    }
+
+    private CurrentUser requireLogin(HttpServletRequest request) {
+        CurrentUser currentUser = (CurrentUser) request.getAttribute("currentUser");
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please login first");
+        }
+        return currentUser;
     }
 }

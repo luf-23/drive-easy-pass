@@ -6,6 +6,7 @@ public record AppRouteDto(
         String name,
         String title,
         Long parentId,
+        String redirect,
         String component,
         String icon,
         Integer rankNo,

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import LayFrame from "../lay-frame/index.vue";
-import LayFooter from "../lay-footer/index.vue";
 import { useTags } from "@/layout/hooks/useTag";
 import { useGlobal, isNumber } from "@pureadmin/utils";
 import BackTopIcon from "@/assets/svg/back_top.svg?component";
@@ -26,10 +25,6 @@ const transitions = computed(() => {
 
 const hideTabs = computed(() => {
   return $storage?.configure.hideTabs;
-});
-
-const hideFooter = computed(() => {
-  return $storage?.configure.hideFooter;
 });
 
 const stretch = computed(() => {
@@ -158,7 +153,6 @@ const transitionMain = defineComponent({
                   />
                 </transitionMain>
               </div>
-              <LayFooter v-if="!hideFooter" />
             </el-scrollbar>
             <div v-else class="grow">
               <transitionMain :route="route">
@@ -188,7 +182,6 @@ const transitionMain = defineComponent({
     </router-view>
 
     <!-- 页脚 -->
-    <LayFooter v-if="!hideFooter && !fixedHeader" />
   </section>
 </template>
 

@@ -2,7 +2,6 @@
 import Cookies from "js-cookie";
 import { getConfig } from "@/config";
 import NProgress from "@/utils/progress";
-import { isLoggedIn } from "@/stores/auth";
 import { buildHierarchyTree } from "@/utils/tree";
 import remainingRouter from "./modules/remaining";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
@@ -16,6 +15,7 @@ import {
 } from "@pureadmin/utils";
 import {
   ascending,
+  initRouter,
   getTopMenu,
   isOneOfArray,
   getHistoryMode,
@@ -42,7 +42,12 @@ import {
  * 如何排除文件请看：https://cn.vitejs.dev/guide/features.html#negative-patterns
  */
 const modules: Record<string, any> = import.meta.glob(
-  ["./modules/**/*.ts", "!./modules/**/remaining.ts"],
+  [
+    "./modules/**/*.ts",
+    "!./modules/**/remaining.ts",
+    "!./modules/**/drive.ts",
+    "!./modules/**/operation.ts"
+  ],
   {
     eager: true
   }
@@ -152,10 +157,51 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   function toCorrectRoute() {
     whiteList.includes(to.path) ? next(_from.fullPath || "/home") : next();
   }
-  if ((Cookies.get(multipleTabsKey) && userInfo) || isLoggedIn.value) {
+  if (Cookies.get(multipleTabsKey) && userInfo) {
+    if (
+      usePermissionStoreHook().wholeMenus.length === 0 &&
+      !whiteList.includes(to.path)
+    ) {
+      initRouter().then(() => next({ ...to, replace: true }));
+      return;
+    }
+    if (
+      usePermissionStoreHook().wholeMenus.length === 0 &&
+      !whiteList.includes(to.path)
+    ) {
+      usePermissionStoreHook().handleWholeMenus([]);
+      if (!useMultiTagsStoreHook().getMultiTagsCache) {
+        const { path } = to;
+        const route = findRouteByPath(path, router.options.routes[0].children);
+        getTopMenu(true);
+        if (route && route.meta?.title) {
+          const routeChildren = Array.isArray(route.children) ? route.children : [];
+          if (isAllEmpty(route.parentId) && route.meta?.backstage && routeChildren[0]) {
+            const { path, name, meta } = routeChildren[0];
+            useMultiTagsStoreHook().handleTags("push", {
+              path,
+              name,
+              meta
+            });
+          } else {
+            const { path, name, meta } = route;
+            useMultiTagsStoreHook().handleTags("push", {
+              path,
+              name,
+              meta
+            });
+          }
+        }
+      }
+      if (isAllEmpty(to.name)) router.push(to.fullPath);
+    }
     // 无权限跳转403页面
-    if (userInfo && to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
-      next({ path: "/error/403" });
+    if (
+      userInfo &&
+      to.meta?.roles &&
+      !isOneOfArray(to.meta?.roles, userInfo?.roles)
+    ) {
+      return next({ path: "/error/403" });
     }
     // 开启隐藏首页后在浏览器地址栏手动输入首页welcome路由则跳转到404页面
     if (VITE_HIDE_HOME === "true" && to.fullPath === "/welcome") {
@@ -182,9 +228,10 @@ router.beforeEach((to: ToRouteType, _from, next) => {
           getTopMenu(true);
           // query、params模式路由传参数的标签页不在此处处理
           if (route && route.meta?.title) {
-            if (isAllEmpty(route.parentId) && route.meta?.backstage) {
+            const routeChildren = Array.isArray(route.children) ? route.children : [];
+            if (isAllEmpty(route.parentId) && route.meta?.backstage && routeChildren[0]) {
               // 此处为动态顶级路由（目录）
-              const { path, name, meta } = route.children[0];
+              const { path, name, meta } = routeChildren[0];
               useMultiTagsStoreHook().handleTags("push", {
                 path,
                 name,
