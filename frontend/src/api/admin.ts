@@ -1,5 +1,10 @@
 import { request } from "@/services/api";
-import type { AppRoute, Role } from "@/types";
+import type {
+  AdminExamRegistrationUpdate,
+  AppRoute,
+  ExamReservationAdminRow,
+  Role
+} from "@/types";
 
 export type AppRoutePayload = Omit<AppRoute, "id">;
 export type RolePayload = Omit<Role, "id">;
@@ -49,5 +54,19 @@ export function updateRole(id: number, payload: RolePayload) {
 export function deleteRole(id: number) {
   return request<void>(`/admin/roles/${id}`, {
     method: "DELETE"
+  });
+}
+
+export function getAdminExamRegistrations() {
+  return request<ExamReservationAdminRow[]>("/admin/exam-registrations");
+}
+
+export function updateAdminExamRegistration(
+  id: number,
+  payload: AdminExamRegistrationUpdate
+) {
+  return request<ExamReservationAdminRow>(`/admin/exam-registrations/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload)
   });
 }

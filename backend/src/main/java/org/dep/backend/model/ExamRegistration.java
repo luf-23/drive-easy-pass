@@ -13,6 +13,8 @@ public record ExamRegistration(
         LocalDate examDate,
         String status,
         Integer score,
+        String passed,
+        String remark,
         LocalDateTime createTime,
         LocalDateTime updateTime
 ) {}

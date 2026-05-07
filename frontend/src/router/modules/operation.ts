@@ -31,17 +31,10 @@ export default {
     {
       path: "/operation/exam-service",
       name: "ExamService",
-      component: () => import("@/views/welcome/index.vue"),
+      component: () =>
+        import("@/views/operation/ExamServiceManagementView.vue"),
       meta: {
         title: "报考服务"
-      }
-    },
-    {
-      path: "/operation/venue-route",
-      name: "VenueRoute",
-      component: () => import("@/views/welcome/index.vue"),
-      meta: {
-        title: "考场线路"
       }
     },
     {

@@ -140,21 +140,47 @@ INSERT INTO questions (id, content, option_a, option_b, option_c, option_d, exam
 (132, '机动车在坡道起步时防止后溜的关键操作是？', '加大油门后松手刹', '油离配合并及时松驻车制动', '空挡滑行起步', '先松制动再慢踩离合', '科目四', 'B', '坡道起步应油离配合，控制半联动并配合驻车制动。'),
 (133, '驾驶机动车在隧道内发生事故后，首要做法是？', '立即掉头驶离', '开启危险报警闪光灯并设置警示', '下车在车道内拦车', '关闭车辆全部灯光', '科目四', 'B', '隧道事故应先警示后处置，防止二次追尾。');
 
+INSERT INTO exam_venues (id, name, address, contact_phone) VALUES
+(1, '市车管所理论考场（城东）', '高新区科苑东路 168 号', '028-12345678'),
+(2, '宏远驾校科目二电子化考场', '经开区训练基地 A 区', '028-87654321'),
+(3, '顺达科目三社会化考场', '南环路外延线 99 号', '028-88990011')
+ON DUPLICATE KEY UPDATE name = VALUES(name), address = VALUES(address), contact_phone = VALUES(contact_phone);
+
+INSERT INTO exam_schedules (id, venue_id, exam_type, exam_date, start_time, end_time, capacity, remark) VALUES
+(1, 1, '科目一', DATE_ADD(CURDATE(), INTERVAL 5 DAY), '09:00:00', '11:30:00', 120, '理论考试第一轮'),
+(2, 1, '科目一', DATE_ADD(CURDATE(), INTERVAL 6 DAY), '14:00:00', '16:30:00', 120, '理论考试加场'),
+(3, 1, '科目四', DATE_ADD(CURDATE(), INTERVAL 10 DAY), '09:00:00', '10:45:00', 80, '安全文明常识'),
+(4, 2, '科目二', DATE_ADD(CURDATE(), INTERVAL 7 DAY), '08:00:00', '12:00:00', 40, '场地五项'),
+(5, 2, '科目二', DATE_ADD(CURDATE(), INTERVAL 9 DAY), '08:00:00', '12:00:00', 40, ''),
+(6, 3, '科目三', DATE_ADD(CURDATE(), INTERVAL 8 DAY), '13:30:00', '17:00:00', 30, '道路驾驶技能'),
+(7, 3, '科目三', DATE_ADD(CURDATE(), INTERVAL 11 DAY), '08:30:00', '12:00:00', 30, '')
+ON DUPLICATE KEY UPDATE
+  venue_id = VALUES(venue_id),
+  exam_type = VALUES(exam_type),
+  exam_date = VALUES(exam_date),
+  start_time = VALUES(start_time),
+  end_time = VALUES(end_time),
+  capacity = VALUES(capacity),
+  remark = VALUES(remark);
+
 INSERT INTO app_routes (id, path, name, title, parent_id, redirect, component, icon, rank_no, enabled) VALUES
 (1, '/drive', 'DriveBusiness', '驾考业务', NULL, '/home', 'Layout', 'ep/guide', 1, 1),
 (2, '/home', 'DriveHome', '学员首页', 1, '', 'HomeView', 'ep/home-filled', 1, 1),
 (3, '/practice', 'Practice', '顺序练习', 1, '', 'PracticeView', 'ep/edit-pen', 2, 1),
 (4, '/exam', 'Exam', '模拟考试', 1, '', 'ExamView', 'ep/document-checked', 3, 1),
 (5, '/wrong', 'WrongQuestions', '错题本', 1, '', 'WrongQuestionsView', 'ep/notebook', 4, 1),
-(6, '/exam/venues', 'VenueList', '考场列表', 1, '', 'VenueList', 'ep/location', 5, 1),
-(10, '/operation', 'OperationCenter', '中台管理', NULL, '/operation/enrollment', 'Layout', 'ep/data-board', 2, 1),
+(10, '/operation', 'OperationCenter', '中台管理', NULL, '/operation/enrollment', 'Layout', 'ep/data-board', 10, 1),
 (11, '/operation/enrollment', 'Enrollment', '招生管理', 10, '', 'EnrollmentManagementView', 'ep/user-filled', 10, 1),
 (12, '/operation/teaching', 'Teaching', '教学管理', 10, '', 'WelcomeView', 'ep/reading', 11, 1),
-(13, '/operation/exam-service', 'ExamService', '报考服务', 10, '', 'WelcomeView', 'ep/tickets', 12, 1),
-(14, '/operation/venue-route', 'VenueRoute', '考场线路', 10, '', 'WelcomeView', 'ep/location', 13, 1),
+(13, '/operation/exam-service', 'ExamService', '报考服务', 10, '', 'ExamServiceManagementView', 'ep/tickets', 12, 1),
 (15, '/operation/reports', 'Reports', '报表中心', 10, '', 'WelcomeView', 'ep/data-analysis', 14, 1),
 (16, '/operation/system/routes', 'RouteManagement', '路由管理', 10, '', 'SystemRouteView', 'ep/menu', 20, 1),
-(17, '/operation/system/roles', 'RoleManagement', '角色管理', 10, '', 'SystemRoleView', 'ep/avatar', 21, 1)
+(17, '/operation/system/roles', 'RoleManagement', '角色管理', 10, '', 'SystemRoleView', 'ep/avatar', 21, 1),
+(20, '/service', 'ServicePortal', '报考业务', NULL, '/service/home', 'ServiceLayout', 'ep/shop', 2, 1),
+(21, '/service/home', 'ServiceHome', '驾校首页', 20, '', 'ServiceHomeView', 'ep/home-filled', 1, 1),
+(23, '/service/signup', 'ServiceSignup', '在线报名', 20, '', 'ServiceSignupView', 'ep/edit-pen', 3, 1),
+(24, '/service/profile', 'ServiceProfile', '个人中心', 20, '', 'ServiceProfileView', 'ep/user', 4, 1),
+(25, '/service/exam-booking', 'ServiceExamBooking', '考试预约（科一至科四）', 20, '', 'ServiceExamBookingView', 'ep/tickets', 2, 1)
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
   title = VALUES(title),
@@ -165,13 +191,29 @@ ON DUPLICATE KEY UPDATE
   rank_no = VALUES(rank_no),
   enabled = VALUES(enabled);
 
-INSERT IGNORE INTO role_routes (role, route_id)
-SELECT 'admin', id FROM app_routes;
+DELETE FROM role_routes WHERE route_id = 6;
+DELETE FROM app_routes WHERE id = 6;
 
-INSERT IGNORE INTO role_routes (role, route_id) VALUES
+DELETE FROM role_routes WHERE route_id IN (14, 22);
+DELETE FROM app_routes WHERE id IN (14, 22);
+
+-- 管理员仅中台；学员为驾考业务 + 报考业务（与 app_routes 分工一致）
+DELETE FROM role_routes WHERE role IN ('admin', 'student');
+INSERT INTO role_routes (role, route_id) VALUES
+('admin', 10),
+('admin', 11),
+('admin', 12),
+('admin', 13),
+('admin', 15),
+('admin', 16),
+('admin', 17),
 ('student', 1),
 ('student', 2),
 ('student', 3),
 ('student', 4),
 ('student', 5),
-('student', 6);
+('student', 20),
+('student', 21),
+('student', 23),
+('student', 24),
+('student', 25);

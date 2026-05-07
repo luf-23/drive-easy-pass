@@ -117,15 +117,18 @@ export function resetRouter() {
   resetLoadedPaths();
 }
 
-/** 路由白名单 */
+/** 未登录仍可访问的路径（访客 + 门户页）；用于避免未初始化菜单时误拦 */
 const whiteList = [
   "/login",
   "/register",
   "/service",
   "/service/home",
-  "/service/exam-sites",
-  "/service/signup"
+  "/service/signup",
+  "/service/exam-booking"
 ];
+
+/** 已登录后不应再进入的页面（仅登录/注册），与 whiteList 分离：门户站 /service/* 登录后也必须能正常切换 */
+const authEntryPaths = new Set(["/login", "/register"]);
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
@@ -153,9 +156,11 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       else document.title = item.meta.title as string;
     });
   }
-  /** 如果已经登录并存在登录信息后不能跳转到路由白名单，而是继续保持在当前页面 */
+  /** 已登录用户点击登录/注册时留在业务页；报考门户等仍在 whiteList 中但此处不拦截 */
   function toCorrectRoute() {
-    whiteList.includes(to.path) ? next(_from.fullPath || "/home") : next();
+    authEntryPaths.has(to.path)
+      ? next(_from.fullPath || "/home")
+      : next();
   }
   if (Cookies.get(multipleTabsKey) && userInfo) {
     if (

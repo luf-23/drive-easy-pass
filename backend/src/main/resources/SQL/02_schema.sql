@@ -65,3 +65,53 @@ CREATE TABLE IF NOT EXISTS role_routes (
     FOREIGN KEY (route_id) REFERENCES app_routes (id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS exam_venues (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  address VARCHAR(255) NOT NULL DEFAULT '',
+  contact_phone VARCHAR(40) NOT NULL DEFAULT '',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS exam_schedules (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  venue_id BIGINT NOT NULL,
+  exam_type VARCHAR(20) NOT NULL,
+  exam_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  capacity INT NOT NULL DEFAULT 60,
+  remark VARCHAR(255) NOT NULL DEFAULT '',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_exam_schedule_venue
+    FOREIGN KEY (venue_id) REFERENCES exam_venues (id)
+    ON DELETE CASCADE,
+  UNIQUE KEY uk_exam_schedule_natural (
+    venue_id,
+    exam_type,
+    exam_date,
+    start_time
+  ),
+  INDEX idx_exam_schedule_type_date (exam_type, exam_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS exam_registrations (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  schedule_id BIGINT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'confirmed',
+  score INT NULL,
+  passed ENUM('Y', 'N') NULL,
+  remark VARCHAR(255) NOT NULL DEFAULT '',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_registration_user_schedule (user_id, schedule_id),
+  INDEX idx_registration_user_status (user_id, status),
+  CONSTRAINT fk_registration_user
+    FOREIGN KEY (user_id) REFERENCES users (id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_registration_schedule
+    FOREIGN KEY (schedule_id) REFERENCES exam_schedules (id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

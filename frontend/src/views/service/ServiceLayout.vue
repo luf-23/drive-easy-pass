@@ -4,7 +4,7 @@
       <div class="brand">驾校报考服务</div>
       <nav>
         <RouterLink to="/service/home">首页</RouterLink>
-        <RouterLink to="/service/exam-sites">考场与线路</RouterLink>
+        <RouterLink to="/service/exam-booking">考试预约</RouterLink>
         <RouterLink to="/service/signup">在线报名</RouterLink>
         <RouterLink to="/service/profile">个人中心</RouterLink>
       </nav>

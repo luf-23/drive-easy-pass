@@ -86,8 +86,8 @@ public class AdminService {
 
     public List<RoleDto> roles() {
         return List.of(
-            new RoleDto(1L, "student", "学员", "学员端学习、考试、错题等功能", true, routeIdsByRole("student")),
-            new RoleDto(2L, "admin", "管理员", "可访问全部中台管理功能", true, routeIdsByRole("admin"))
+            new RoleDto(1L, "student", "学员", "驾考业务（练习/模考/错题）与报考业务（报名等门户页）", true, routeIdsByRole("student")),
+            new RoleDto(2L, "admin", "管理员", "中台管理（招生、教学、报考服务、系统配置等）", true, routeIdsByRole("admin"))
         );
     }
 

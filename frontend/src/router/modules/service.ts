@@ -8,7 +8,8 @@ export default {
   meta: {
     icon: "ep/shop",
     title: "报考服务",
-    rank: 3
+    rank: 3,
+    showLink: false
   },
   children: [
     {
@@ -16,15 +17,16 @@ export default {
       name: "ServiceHome",
       component: () => import("@/views/service/ServiceHomeView.vue"),
       meta: {
-        title: "驾校首页"
+        title: "驾校首页",
+        rank: 1 
       }
     },
     {
-      path: "/service/exam-sites",
-      name: "ServiceExamSites",
-      component: () => import("@/views/service/ServiceExamSitesView.vue"),
+      path: "/service/exam-booking",
+      name: "ServiceExamBooking",
+      component: () => import("@/views/service/ServiceExamBookingView.vue"),
       meta: {
-        title: "考场与线路"
+        title: "考试预约"
       }
     },
     {

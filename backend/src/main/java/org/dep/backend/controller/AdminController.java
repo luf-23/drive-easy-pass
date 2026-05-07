@@ -3,10 +3,13 @@ package org.dep.backend.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dep.backend.dto.AppRouteDto;
 import org.dep.backend.dto.AppRouteRequest;
+import org.dep.backend.dto.ExamRegistrationAdminUpdate;
+import org.dep.backend.dto.ExamReservationDTO;
 import org.dep.backend.dto.RoleDto;
 import org.dep.backend.dto.RoleRequest;
 import org.dep.backend.security.CurrentUser;
 import org.dep.backend.service.AdminService;
+import org.dep.backend.service.ExamRegistrationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,9 +28,11 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
     private final AdminService adminService;
+    private final ExamRegistrationService examRegistrationService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, ExamRegistrationService examRegistrationService) {
         this.adminService = adminService;
+        this.examRegistrationService = examRegistrationService;
     }
 
     @GetMapping("/routes")
@@ -78,6 +83,22 @@ public class AdminController {
         requireAdmin(request);
         adminService.deleteRole(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/exam-registrations")
+    public List<ExamReservationDTO> examRegistrations(HttpServletRequest request) {
+        requireAdmin(request);
+        return examRegistrationService.listAllForAdmin();
+    }
+
+    @PutMapping("/exam-registrations/{id}")
+    public ExamReservationDTO updateExamRegistration(
+            @PathVariable Long id,
+            @RequestBody ExamRegistrationAdminUpdate body,
+            HttpServletRequest request
+    ) {
+        requireAdmin(request);
+        return examRegistrationService.adminUpdate(id, body);
     }
 
     private void requireAdmin(HttpServletRequest request) {

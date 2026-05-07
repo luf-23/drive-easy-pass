@@ -43,8 +43,8 @@ async function loadPackages() {
       <h1>通过率高、训练场近、报名流程透明</h1>
       <p>一人一车、全程教练跟进、关键节点提醒，帮你更快拿证。</p>
       <div class="hero-actions">
-        <RouterLink class="cta" to="/service/signup">立即报名</RouterLink>
-        <RouterLink class="ghost" to="/service/exam-sites">查看考场线路</RouterLink>
+        <RouterLink class="cta" to="/service/exam-booking">考试预约（科一至科四）</RouterLink>
+        <RouterLink class="cta secondary" to="/service/signup">意向报名</RouterLink>
       </div>
     </section>
 
@@ -126,14 +126,14 @@ async function loadPackages() {
   gap: 10px;
 }
 
-.cta,
-.ghost {
+.cta {
   display: inline-grid;
   place-items: center;
   min-height: 40px;
   padding: 9px 16px;
   border-radius: 10px;
   font-weight: 700;
+  text-decoration: none;
 }
 
 .cta {
@@ -141,9 +141,10 @@ async function loadPackages() {
   background: #f7be3b;
 }
 
-.ghost {
-  color: #dceeff;
-  border: 1px solid rgba(220, 238, 255, 0.6);
+.cta.secondary {
+  background: transparent;
+  color: #ffe7a8;
+  border: 2px solid rgba(255, 247, 200, 0.55);
 }
 
 .value-grid {

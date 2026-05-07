@@ -54,13 +54,4 @@ export default [
       }
     ]
   },
-  {
-    path: "/exam/venue/:id",
-    name: "ExamVenueDetailPage",
-    component: () => import("@/views/exam/VenueDetail.vue"),
-    meta: {
-      title: "考场详情",
-      showLink: false
-    }
-  },
 ] satisfies Array<RouteConfigsTable>;

@@ -167,59 +167,57 @@ export interface CoursePackage {
   tag: string
 }
 
-export interface ExamSite {
-  code: string
-  name: string
-  address: string
-  subjects: string[]
-  imageUrl: string
-  routeDescription: string
-}
-
-export interface ExamVenueDTO {
+/** 可预约场次（车管所/考场排期） */
+export interface ExamScheduleCard {
   id: number
+  venueId: number
   venueName: string
-  venueCode: string
-  address: string
-  district: string
-  contactPhone: string | null
   examType: string
-  totalSlots: number
-  availableSlots: number
-  routeDescription: string | null
-  routeMapUrl: string | null
-  facilities: string | null
-  businessHours: string | null
-  longitude: number | null
-  latitude: number | null
-  status: string
-}
-
-export interface ExamRouteDTO {
-  id: number
-  venueId: number
-  routeName: string
-  routeNumber: string
-  description: string | null
-  startPoint: string | null
-  endPoint: string | null
-  distance: number | null
-  difficulty: string | null
-  points: string | null
-  mapImageUrl: string | null
-  sortOrder: number | null
-}
-
-export interface ExamScheduleDTO {
-  id: number
-  venueId: number
-  venueName: string
   examDate: string
   startTime: string
   endTime: string
-  examType: string
-  totalSlots: number
-  reservedSlots: number
+  capacity: number
+  bookedCount: number
   availableSlots: number
+  remark: string
+}
+
+/** 学员本人报考记录 */
+export interface ExamRegistrationRow {
+  id: number
+  scheduleId: number
+  venueId: number
+  venueName: string
+  examType: string
+  examDate: string
+  startTime: string
+  endTime: string
   status: string
+  score: number | null
+  passed: string | null
+  availableSlots: number
+}
+
+/** 管理员报考列表一行 */
+export interface ExamReservationAdminRow {
+  id: number
+  userId: number
+  username: string
+  scheduleId: number
+  venueId: number
+  venueName: string
+  examType: string
+  examDate: string
+  startTime: string
+  status: string
+  score: number | null
+  passed: string | null
+  remark: string
+}
+
+export interface AdminExamRegistrationUpdate {
+  status: string | null
+  score: number | null
+  passed: string | null
+  remark: string | null
 }

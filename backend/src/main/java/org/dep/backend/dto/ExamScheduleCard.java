@@ -3,16 +3,16 @@ package org.dep.backend.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record ExamScheduleDTO(
+public record ExamScheduleCard(
         Long id,
         Long venueId,
         String venueName,
+        String examType,
         LocalDate examDate,
         LocalTime startTime,
         LocalTime endTime,
-        String examType,
-        Integer totalSlots,
-        Integer reservedSlots,
-        Integer availableSlots,
-        String status
+        int capacity,
+        int bookedCount,
+        int availableSlots,
+        String remark
 ) {}

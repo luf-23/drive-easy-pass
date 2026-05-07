@@ -42,14 +42,6 @@ export default {
       meta: {
         title: "错题本"
       }
-    },
-    {
-      path: "/exam/venues",
-      name: "VenueList",
-      component: () => import("@/views/exam/VenueList.vue"),
-      meta: {
-        title: "考场信息"
-      }
     }
   ]
 } satisfies RouteConfigsTable;
