@@ -8,6 +8,8 @@ public record AppUser(
         String passwordHash,
         String nickname,
         String role,
+        String email,
+        Integer status,
         LocalDateTime createTime
 ) {
 }
