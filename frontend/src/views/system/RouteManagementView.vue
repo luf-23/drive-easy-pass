@@ -55,7 +55,9 @@ async function loadRoutes() {
   try {
     routes.value = await getAdminRoutes();
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : "路由列表加载失败");
+    ElMessage.error(
+      error instanceof Error ? error.message : "路由列表加载失败"
+    );
   } finally {
     loading.value = false;
   }
@@ -152,7 +154,9 @@ async function removeRoute(route: AppRoute) {
 
 function parentTitle(parentId: number | null) {
   if (parentId == null) return "无";
-  return routes.value.find(item => item.id === parentId)?.title ?? `#${parentId}`;
+  return (
+    routes.value.find(item => item.id === parentId)?.title ?? `#${parentId}`
+  );
 }
 function goPage(value: number) {
   page.value = Math.min(Math.max(value, 1), totalPages.value);
@@ -175,7 +179,13 @@ function goPage(value: number) {
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="pagedRoutes" row-key="id" border height="100%">
+      <el-table
+        v-loading="loading"
+        :data="pagedRoutes"
+        row-key="id"
+        border
+        height="100%"
+      >
         <el-table-column prop="title" label="菜单标题" min-width="150" />
         <el-table-column prop="path" label="路径" min-width="220" />
         <el-table-column prop="name" label="路由名" min-width="160" />
@@ -205,13 +215,26 @@ function goPage(value: number) {
         </el-table-column>
       </el-table>
 
-      <AppPagination v-if="routes.length > pageSize" :page="page" :total-pages="totalPages" @change="goPage" />
+      <AppPagination
+        v-if="routes.length > pageSize"
+        :page="page"
+        :total-pages="totalPages"
+        @change="goPage"
+      />
     </el-card>
 
-    <el-dialog v-model="dialogVisible" :title="editingId ? '编辑路由' : '新增路由'" width="640px" @closed="resetForm">
+    <el-dialog
+      v-model="dialogVisible"
+      :title="editingId ? '编辑路由' : '新增路由'"
+      width="640px"
+      @closed="resetForm"
+    >
       <el-form :model="form" label-width="92px">
         <el-form-item label="路径" required>
-          <el-input v-model="form.path" placeholder="/operation/system/routes" />
+          <el-input
+            v-model="form.path"
+            placeholder="/operation/system/routes"
+          />
         </el-form-item>
         <el-form-item label="路由名" required>
           <el-input v-model="form.name" placeholder="RouteManagement" />
@@ -221,11 +244,19 @@ function goPage(value: number) {
         </el-form-item>
         <el-form-item label="父级">
           <el-select v-model="form.parentId" clearable placeholder="无父级">
-            <el-option v-for="item in parentOptions" :key="item.id" :label="item.title" :value="item.id" />
+            <el-option
+              v-for="item in parentOptions"
+              :key="item.id"
+              :label="item.title"
+              :value="item.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="重定向">
-          <el-input v-model="form.redirect" placeholder="/operation/dashboard" />
+          <el-input
+            v-model="form.redirect"
+            placeholder="/operation/dashboard"
+          />
         </el-form-item>
         <el-form-item label="组件">
           <el-input v-model="form.component" placeholder="RouteManagement" />
@@ -237,7 +268,11 @@ function goPage(value: number) {
           <el-input-number v-model="form.rankNo" :min="0" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch v-model="form.enabled" active-text="启用" inactive-text="停用" />
+          <el-switch
+            v-model="form.enabled"
+            active-text="启用"
+            inactive-text="停用"
+          />
         </el-form-item>
       </el-form>
 

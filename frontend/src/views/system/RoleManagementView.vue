@@ -59,7 +59,9 @@ async function loadData() {
     roles.value = nextRoles;
     routes.value = nextRoutes;
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : "角色数据加载失败");
+    ElMessage.error(
+      error instanceof Error ? error.message : "角色数据加载失败"
+    );
   } finally {
     loading.value = false;
   }
@@ -193,7 +195,13 @@ function goPage(value: number) {
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="pagedRoles" row-key="id" border height="100%">
+      <el-table
+        v-loading="loading"
+        :data="pagedRoles"
+        row-key="id"
+        border
+        height="100%"
+      >
         <el-table-column prop="name" label="角色名称" min-width="140" />
         <el-table-column prop="code" label="角色编码" min-width="130" />
         <el-table-column prop="description" label="描述" min-width="180">
@@ -225,10 +233,20 @@ function goPage(value: number) {
         </el-table-column>
       </el-table>
 
-      <AppPagination v-if="roles.length > pageSize" :page="page" :total-pages="totalPages" @change="goPage" />
+      <AppPagination
+        v-if="roles.length > pageSize"
+        :page="page"
+        :total-pages="totalPages"
+        @change="goPage"
+      />
     </el-card>
 
-    <el-dialog v-model="dialogVisible" :title="editingId ? '编辑角色' : '新增角色'" width="680px" @closed="resetForm">
+    <el-dialog
+      v-model="dialogVisible"
+      :title="editingId ? '编辑角色' : '新增角色'"
+      width="680px"
+      @closed="resetForm"
+    >
       <el-form :model="form" label-width="92px">
         <el-form-item label="角色编码" required>
           <el-input v-model="form.code" placeholder="admin" />
@@ -237,14 +255,29 @@ function goPage(value: number) {
           <el-input v-model="form.name" placeholder="管理员" />
         </el-form-item>
         <el-form-item label="描述">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="角色职责说明" />
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            placeholder="角色职责说明"
+          />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch v-model="form.enabled" active-text="启用" inactive-text="停用" />
+          <el-switch
+            v-model="form.enabled"
+            active-text="启用"
+            inactive-text="停用"
+          />
         </el-form-item>
         <el-form-item label="访问路由">
-          <el-tree v-model:checked-keys="form.routeIds" :data="routeTree" node-key="id" show-checkbox default-expand-all
-            :props="{ label: 'title', children: 'children' }" />
+          <el-tree
+            v-model:checked-keys="form.routeIds"
+            :data="routeTree"
+            node-key="id"
+            show-checkbox
+            default-expand-all
+            :props="{ label: 'title', children: 'children' }"
+          />
         </el-form-item>
       </el-form>
 

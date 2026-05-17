@@ -23,6 +23,8 @@ public interface AuthMapper {
                    password_hash AS passwordHash,
                    nickname,
                    role,
+                   email,
+                   status,
                    create_time AS createTime
             FROM users
             WHERE username = #{username}
@@ -35,6 +37,8 @@ public interface AuthMapper {
                    password_hash AS passwordHash,
                    nickname,
                    role,
+                   email,
+                   status,
                    create_time AS createTime
             FROM users
             WHERE id = #{id}

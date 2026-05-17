@@ -19,7 +19,8 @@ export default {
         title: "工作台",
         roles: ["admin", "coach"]
       }
-    },    {
+    },
+    {
       path: "/operation/statistics",
       name: "StatisticsCenter",
       component: () => import("@/views/operation/statistics/index.vue"),
@@ -27,7 +28,8 @@ export default {
         title: "统计中心",
         roles: ["admin", "market"]
       }
-    },    {
+    },
+    {
       path: "/operation/enrollment/intents",
       name: "Enrollment",
       component: () => import("@/views/operation/EnrollmentManagementView.vue"),

@@ -6,7 +6,11 @@ export const getStatisticsOverview = () => {
 };
 
 export const getEnrollmentTrend = (params?: object) => {
-  return http.request<BaseResult>("get", "/api/admin/statistics/enrollment-trend", { params });
+  return http.request<BaseResult>(
+    "get",
+    "/api/admin/statistics/enrollment-trend",
+    { params }
+  );
 };
 
 export const getPassRate = () => {
