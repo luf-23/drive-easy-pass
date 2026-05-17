@@ -1,15 +1,13 @@
-package org.dep.backend.dto;
+package org.dep.backend.mapper.projection;
 
-import java.util.List;
-
-public record CoursePackageDto(
+public record CoursePackageRow(
         Long id,
         String code,
         String name,
         String vehicleType,
         Integer price,
         Integer lessonHours,
-        List<String> highlights,
+        String highlights,
         String tag,
         Integer sortNo,
         Boolean enabled

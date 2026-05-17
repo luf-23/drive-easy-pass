@@ -26,7 +26,7 @@ public interface ExamRegistrationMapper {
             "JOIN exam_venues ev ON ev.id = es.venue_id",
             "LEFT JOIN (",
             "  SELECT schedule_id, COUNT(*) cnt FROM exam_registrations",
-            "  WHERE status IN ('confirmed', 'completed', 'absent')",
+            "  WHERE status IN ('pending', 'approved', 'completed')",
             "  GROUP BY schedule_id",
             ") oc ON oc.schedule_id = es.id",
             "WHERE es.exam_date &gt;= CURDATE()",
@@ -56,7 +56,7 @@ public interface ExamRegistrationMapper {
             SELECT IFNULL(COUNT(*), 0)
             FROM exam_registrations
             WHERE schedule_id = #{scheduleId}
-              AND status IN ('confirmed', 'completed', 'absent')
+              AND status IN ('pending', 'approved', 'completed')
             """)
     int countActiveRegistrations(@Param("scheduleId") Long scheduleId);
 
@@ -66,7 +66,7 @@ public interface ExamRegistrationMapper {
             JOIN exam_schedules es ON es.id = er.schedule_id
             WHERE er.user_id = #{userId}
               AND es.exam_type = #{examType}
-              AND er.status = 'confirmed'
+              AND er.status IN ('pending', 'approved')
             """)
     int countActiveSameSubject(@Param("userId") Long userId, @Param("examType") String examType);
 
@@ -83,7 +83,7 @@ public interface ExamRegistrationMapper {
 
     @Insert("""
             INSERT INTO exam_registrations (user_id, schedule_id, status, remark)
-            VALUES (#{userId}, #{scheduleId}, 'confirmed', #{remark})
+            VALUES (#{userId}, #{scheduleId}, 'pending', #{remark})
             """)
     int insertRegistration(@Param("userId") Long userId,
                            @Param("scheduleId") Long scheduleId,
@@ -111,7 +111,7 @@ public interface ExamRegistrationMapper {
             LEFT JOIN (
                 SELECT schedule_id, COUNT(*) cnt
                 FROM exam_registrations
-                WHERE status IN ('confirmed', 'completed', 'absent')
+                WHERE status IN ('pending', 'approved', 'completed')
                 GROUP BY schedule_id
             ) oc ON oc.schedule_id = es.id
             WHERE er.user_id = #{userId}
@@ -178,7 +178,7 @@ public interface ExamRegistrationMapper {
             SET er.status = 'cancelled'
             WHERE er.id = #{id}
               AND er.user_id = #{userId}
-              AND er.status = 'confirmed'
+              AND er.status IN ('pending', 'approved')
               AND (es.exam_date > CURDATE()
                    OR (es.exam_date = CURDATE() AND es.start_time > CURTIME()))
             """)

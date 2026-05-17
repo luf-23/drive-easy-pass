@@ -2,8 +2,7 @@ package org.dep.backend.dto;
 
 import java.util.List;
 
-public record CoursePackageDto(
-        Long id,
+public record CoursePackageRequest(
         String code,
         String name,
         String vehicleType,

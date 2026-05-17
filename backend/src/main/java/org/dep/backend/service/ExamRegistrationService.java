@@ -23,7 +23,7 @@ public class ExamRegistrationService {
     private static final Map<String, String> PREREQUISITE =
             Map.of("科目二", "科目一", "科目三", "科目二", "科目四", "科目三");
     private static final Set<String> SUBJECT_ORDER = Set.of("科目一", "科目二", "科目三", "科目四");
-    private static final Set<String> REG_STATUS = Set.of("confirmed", "cancelled", "completed", "absent");
+    private static final Set<String> REG_STATUS = Set.of("pending", "approved", "rejected", "cancelled", "completed");
 
     private final ExamRegistrationMapper examRegistrationMapper;
 
@@ -104,7 +104,7 @@ public class ExamRegistrationService {
         }
         int n = examRegistrationMapper.cancelConfirmedByOwner(registrationId, userId);
         if (n == 0) {
-            throw new IllegalArgumentException("仅支持取消状态为「已确认」且未开考的预约");
+            throw new IllegalArgumentException("仅支持取消待审核/已通过且未开考的预约");
         }
     }
 
@@ -122,7 +122,7 @@ public class ExamRegistrationService {
                 ? body.status().trim().toLowerCase(Locale.ROOT)
                 : existing.status();
         if (!REG_STATUS.contains(status)) {
-            throw new IllegalArgumentException("状态必须为 confirmed / cancelled / completed / absent");
+            throw new IllegalArgumentException("状态必须为 pending / approved / rejected / cancelled / completed");
         }
 
         Integer score = body.score() != null ? body.score() : existing.score();

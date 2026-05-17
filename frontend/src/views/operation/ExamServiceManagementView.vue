@@ -78,10 +78,11 @@ async function save() {
 
 function statusZh(s: string) {
   const m: Record<string, string> = {
-    confirmed: "已确认",
+    pending: "待审核",
+    approved: "已通过",
+    rejected: "已拒绝",
     cancelled: "已取消",
-    completed: "已完成",
-    absent: "缺考"
+    completed: "已完成"
   };
   return m[s] ?? s;
 }
@@ -145,10 +146,11 @@ onMounted(load);
           <div class="fld">
             <label>状态</label>
             <select v-model="form.status">
-              <option value="confirmed">confirmed 已确认</option>
+              <option value="pending">pending 待审核</option>
+              <option value="approved">approved 已通过</option>
+              <option value="rejected">rejected 已拒绝</option>
               <option value="cancelled">cancelled 已取消</option>
               <option value="completed">completed 已完成</option>
-              <option value="absent">absent 缺考</option>
             </select>
           </div>
           <div class="fld">

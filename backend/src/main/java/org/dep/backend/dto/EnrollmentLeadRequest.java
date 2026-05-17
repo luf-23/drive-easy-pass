@@ -3,9 +3,9 @@ package org.dep.backend.dto;
 public record EnrollmentLeadRequest(
         String name,
         String phone,
-        Long sourceId,
-        Long intentLevelId,
-        Long statusId,
+        String source,
+        String intentLevel,
+        String status,
         Long ownerUserId,
         String nextFollowTime,
         String remark

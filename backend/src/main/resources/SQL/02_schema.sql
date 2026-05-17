@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(50) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   nickname VARCHAR(50) NOT NULL,
-  role ENUM('student', 'admin') NOT NULL DEFAULT 'student',
+  role ENUM('student', 'coach', 'admin') NOT NULL DEFAULT 'student',
   create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uk_users_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS exam_registrations (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT NOT NULL,
   schedule_id BIGINT NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'confirmed',
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
   score INT NULL,
   passed ENUM('Y', 'N') NULL,
   remark VARCHAR(255) NOT NULL DEFAULT '',
@@ -114,4 +114,57 @@ CREATE TABLE IF NOT EXISTS exam_registrations (
   CONSTRAINT fk_registration_schedule
     FOREIGN KEY (schedule_id) REFERENCES exam_schedules (id)
     ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS course_packages (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(40) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  vehicle_type VARCHAR(20) NOT NULL DEFAULT 'C1',
+  price INT NOT NULL DEFAULT 0,
+  lesson_hours INT NOT NULL DEFAULT 0,
+  highlights VARCHAR(1000) NOT NULL DEFAULT '',
+  tag VARCHAR(40) NOT NULL DEFAULT '',
+  sort_no INT NOT NULL DEFAULT 0,
+  enabled TINYINT(1) NOT NULL DEFAULT 1,
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_course_packages_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS enrollment_intents (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  source VARCHAR(50) NOT NULL DEFAULT '其他',
+  intent_level VARCHAR(20) NOT NULL DEFAULT '中',
+  status VARCHAR(30) NOT NULL DEFAULT '待跟进',
+  owner_user_id BIGINT NULL,
+  next_follow_time DATETIME NULL,
+  remark VARCHAR(500) NOT NULL DEFAULT '',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_enrollment_status (status),
+  INDEX idx_enrollment_phone (phone),
+  INDEX idx_enrollment_owner (owner_user_id),
+  CONSTRAINT fk_enrollment_owner
+    FOREIGN KEY (owner_user_id) REFERENCES users (id)
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS enrollment_follow_records (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  lead_id BIGINT NOT NULL,
+  content VARCHAR(500) NOT NULL,
+  follow_type VARCHAR(30) NOT NULL DEFAULT '电话',
+  next_follow_time DATETIME NULL,
+  creator_user_id BIGINT NULL,
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_follow_lead (lead_id, create_time),
+  CONSTRAINT fk_follow_lead
+    FOREIGN KEY (lead_id) REFERENCES enrollment_intents (id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_follow_creator
+    FOREIGN KEY (creator_user_id) REFERENCES users (id)
+    ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
