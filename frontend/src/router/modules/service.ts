@@ -18,7 +18,7 @@ export default {
       component: () => import("@/views/service/ServiceHomeView.vue"),
       meta: {
         title: "驾校首页",
-        rank: 1 
+        rank: 1
       }
     },
     {

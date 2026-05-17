@@ -30,7 +30,9 @@ export function getEnrollmentLeads(query: EnrollmentLeadQuery = {}) {
 }
 
 export function getSignedStudents(query: EnrollmentLeadQuery = {}) {
-  return request<PageResult<EnrollmentLead>>(`/admin/students${queryString(query)}`);
+  return request<PageResult<EnrollmentLead>>(
+    `/admin/students${queryString(query)}`
+  );
 }
 
 export function createEnrollmentLead(payload: EnrollmentLeadPayload) {
@@ -40,7 +42,10 @@ export function createEnrollmentLead(payload: EnrollmentLeadPayload) {
   });
 }
 
-export function updateEnrollmentLead(id: number, payload: EnrollmentLeadPayload) {
+export function updateEnrollmentLead(
+  id: number,
+  payload: EnrollmentLeadPayload
+) {
   return request<EnrollmentLead>(`/admin/enrollment-intents/${id}`, {
     method: "PUT",
     body: JSON.stringify(payload)

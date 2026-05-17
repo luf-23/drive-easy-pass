@@ -63,7 +63,8 @@ async function save() {
         typeof form.passed === "string" && form.passed.trim()
           ? form.passed.trim().toUpperCase()
           : null,
-      remark: typeof form.remark === "string" ? form.remark.trim() || null : null
+      remark:
+        typeof form.remark === "string" ? form.remark.trim() || null : null
     };
     await updateAdminExamRegistration(editing.value.id, payload);
     ok.value = "已保存";
@@ -95,7 +96,9 @@ onMounted(load);
     <header class="head">
       <div>
         <h1>报考服务</h1>
-        <p class="muted">维护学员各科预约，并在考试结束后登记成绩与是否合格。</p>
+        <p class="muted">
+          维护学员各科预约，并在考试结束后登记成绩与是否合格。
+        </p>
       </div>
       <button type="button" class="ghost" :disabled="loading" @click="load">
         刷新
@@ -131,7 +134,9 @@ onMounted(load);
               {{ r.passed === "Y" ? "Y" : r.passed === "N" ? "N" : "—" }}
             </td>
             <td>
-              <button type="button" class="sm" @click="openEdit(r)">编辑</button>
+              <button type="button" class="sm" @click="openEdit(r)">
+                编辑
+              </button>
             </td>
           </tr>
         </tbody>
@@ -155,7 +160,12 @@ onMounted(load);
           </div>
           <div class="fld">
             <label>分数（理论/实操成绩）</label>
-            <input v-model.number="form.score" type="number" min="0" max="100" />
+            <input
+              v-model.number="form.score"
+              type="number"
+              min="0"
+              max="100"
+            />
           </div>
           <div class="fld">
             <label>是否合格</label>
@@ -170,8 +180,15 @@ onMounted(load);
             <textarea v-model="form.remark" rows="3" />
           </div>
           <footer>
-            <button type="button" class="ghost" @click="drawer = false">关闭</button>
-            <button type="button" class="primary" :disabled="saving" @click="save">
+            <button type="button" class="ghost" @click="drawer = false">
+              关闭
+            </button>
+            <button
+              type="button"
+              class="primary"
+              :disabled="saving"
+              @click="save"
+            >
               {{ saving ? "保存中…" : "保存" }}
             </button>
           </footer>
@@ -190,9 +207,9 @@ onMounted(load);
 
 .head {
   display: flex;
+  gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
 }
 
 .head h1 {
@@ -203,55 +220,55 @@ onMounted(load);
 
 .muted {
   margin: 4px 0 0;
-  color: #5a7594;
   font-size: 14px;
+  color: #5a7594;
 }
 
 .panel {
+  padding: 12px;
+  overflow-x: auto;
   background: #fff;
   border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 8px 20px rgba(14, 46, 80, 0.08);
-  overflow-x: auto;
+  box-shadow: 0 8px 20px rgb(14 46 80 / 8%);
 }
 
 .grid {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
   min-width: 880px;
+  font-size: 14px;
+  border-collapse: collapse;
 }
 
 .grid th,
 .grid td {
-  border-bottom: 1px solid #e8eff7;
   padding: 10px 8px;
   text-align: left;
+  border-bottom: 1px solid #e8eff7;
 }
 
 button {
-  border: none;
-  border-radius: 8px;
+  padding: 8px 12px;
   font-weight: 700;
   cursor: pointer;
-  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
 }
 
 button.primary {
-  background: #0b3d6b;
   color: #fff;
+  background: #0b3d6b;
 }
 
 button.ghost {
-  background: #e9f3ff;
   color: #0b3d6b;
+  background: #e9f3ff;
 }
 
 button.sm {
-  font-size: 13px;
   padding: 5px 10px;
-  background: #f0f6ff;
+  font-size: 13px;
   color: #0b3d6b;
+  background: #f0f6ff;
 }
 
 .ok {
@@ -265,20 +282,20 @@ button.sm {
 .mask {
   position: fixed;
   inset: 0;
-  background: rgba(18, 45, 70, 0.35);
+  z-index: 50;
   display: grid;
   place-items: center;
-  z-index: 50;
+  background: rgb(18 45 70 / 35%);
 }
 
 .dlg {
-  width: min(420px, 92vw);
-  background: #fff;
-  border-radius: 14px;
-  padding: 18px 18px 14px;
-  box-shadow: 0 20px 44px rgba(12, 40, 70, 0.25);
   display: grid;
   gap: 12px;
+  width: min(420px, 92vw);
+  padding: 18px 18px 14px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 20px 44px rgb(12 40 70 / 25%);
 }
 
 .dlg h2 {
@@ -293,18 +310,18 @@ button.sm {
 }
 
 .fld label {
-  font-weight: 700;
   font-size: 13px;
+  font-weight: 700;
   color: #2f4f6c;
 }
 
 .fld select,
 .fld input,
 .fld textarea {
-  border-radius: 8px;
-  border: 1px solid #c9dcef;
   padding: 8px 10px;
   font-size: 14px;
+  border: 1px solid #c9dcef;
+  border-radius: 8px;
 }
 
 .dlg footer {

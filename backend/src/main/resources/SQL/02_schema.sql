@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS app_routes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS role_routes (
-  role ENUM('student', 'admin') NOT NULL,
+  role ENUM('student', 'coach', 'admin') NOT NULL,
   route_id BIGINT NOT NULL,
   PRIMARY KEY (role, route_id),
   CONSTRAINT fk_role_route_route

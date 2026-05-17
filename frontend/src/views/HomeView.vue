@@ -1,34 +1,36 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { request } from '../services/api'
-import { useAuth } from '../stores/auth'
-import type { Question, WrongQuestion } from '../types'
+import { computed, onMounted, ref } from "vue";
+import { request } from "../services/api";
+import { useAuth } from "../stores/auth";
+import type { Question, WrongQuestion } from "../types";
 
-const { isLoggedIn, user } = useAuth()
-const questions = ref<Question[]>([])
-const wrongQuestions = ref<WrongQuestion[]>([])
-const loading = ref(false)
-const error = ref('')
-const examCount = 20
+const { isLoggedIn, user } = useAuth();
+const questions = ref<Question[]>([]);
+const wrongQuestions = ref<WrongQuestion[]>([]);
+const loading = ref(false);
+const error = ref("");
+const examCount = 20;
 
 const wrongCount = computed(() => {
-  const ids = new Set(wrongQuestions.value.map((item) => item.question.id))
-  return ids.size
-})
+  const ids = new Set(wrongQuestions.value.map(item => item.question.id));
+  return ids.size;
+});
 
-onMounted(loadDashboard)
+onMounted(loadDashboard);
 
 async function loadDashboard() {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
 
   try {
-    questions.value = await request<Question[]>('/questions')
-    wrongQuestions.value = isLoggedIn.value ? await request<WrongQuestion[]>('/wrong-questions') : []
+    questions.value = await request<Question[]>("/questions");
+    wrongQuestions.value = isLoggedIn.value
+      ? await request<WrongQuestion[]>("/wrong-questions")
+      : [];
   } catch (err) {
-    error.value = err instanceof Error ? err.message : '首页数据加载失败'
+    error.value = err instanceof Error ? err.message : "首页数据加载失败";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 </script>
@@ -42,8 +44,17 @@ async function loadDashboard() {
       <article class="hero-panel driving-hero">
         <div>
           <p class="eyebrow">Drive Easy Pass</p>
-          <h2>{{ isLoggedIn ? `${user?.nickname}，继续冲刺驾考` : '驾考刷题、模拟、错题复盘一站完成' }}</h2>
-          <p>围绕科目一常见训练流程设计：先顺序练习建立题感，再用 20 题模拟考试检验掌握情况，最后回到错题本集中复盘。</p>
+          <h2>
+            {{
+              isLoggedIn
+                ? `${user?.nickname}，继续冲刺驾考`
+                : "驾考刷题、模拟、错题复盘一站完成"
+            }}
+          </h2>
+          <p>
+            围绕科目一常见训练流程设计：先顺序练习建立题感，再用 20
+            题模拟考试检验掌握情况，最后回到错题本集中复盘。
+          </p>
         </div>
         <div class="hero-actions">
           <RouterLink class="primary" to="/practice">开始练习</RouterLink>
@@ -63,7 +74,7 @@ async function loadDashboard() {
       </article>
       <article class="metric">
         <span>错题复盘</span>
-        <strong>{{ isLoggedIn ? wrongCount : '登录后启用' }}</strong>
+        <strong>{{ isLoggedIn ? wrongCount : "登录后启用" }}</strong>
         <p>同一道题只保留一条记录</p>
       </article>
 

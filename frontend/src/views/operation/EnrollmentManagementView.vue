@@ -19,7 +19,15 @@ import type {
 } from "@/types";
 
 const statusOptions = ["新线索", "已联系", "已到访", "已报名", "无效"];
-const sourceOptions = ["线上广告", "地推", "转介绍", "抖音", "小红书", "门店", "其他"];
+const sourceOptions = [
+  "线上广告",
+  "地推",
+  "转介绍",
+  "抖音",
+  "小红书",
+  "门店",
+  "其他"
+];
 const followTypeOptions = ["电话", "微信", "到店", "短信", "其他"];
 
 const activeTab = ref<"leads" | "students">("leads");
@@ -64,8 +72,12 @@ const followForm = reactive<EnrollmentFollowUpPayload>({
   nextFollowTime: null
 });
 
-const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
-const studentPages = computed(() => Math.max(1, Math.ceil(studentsTotal.value / pageSize.value)));
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(total.value / pageSize.value))
+);
+const studentPages = computed(() =>
+  Math.max(1, Math.ceil(studentsTotal.value / pageSize.value))
+);
 
 onMounted(async () => {
   await Promise.all([loadDashboard(), loadLeads(), loadStudents()]);
@@ -96,7 +108,8 @@ async function loadLeads() {
     total.value = result.total;
 
     if (selectedLead.value) {
-      const refreshed = result.items.find(item => item.id === selectedLead.value?.id) || null;
+      const refreshed =
+        result.items.find(item => item.id === selectedLead.value?.id) || null;
       selectedLead.value = refreshed;
       if (!refreshed) {
         followUps.value = [];
@@ -191,7 +204,10 @@ async function saveLead() {
 }
 
 async function quickAssignOwner(lead: EnrollmentLead) {
-  const input = window.prompt(`为 ${lead.name} 分配负责人用户ID`, lead.ownerUserId ? String(lead.ownerUserId) : "");
+  const input = window.prompt(
+    `为 ${lead.name} 分配负责人用户ID`,
+    lead.ownerUserId ? String(lead.ownerUserId) : ""
+  );
   if (input === null) return;
   const ownerId = Number(input);
   if (!Number.isInteger(ownerId) || ownerId <= 0) {
@@ -218,7 +234,16 @@ async function exportLeads() {
       pageSize: 1000
     });
 
-    const headers = ["姓名", "手机号", "来源", "意向", "状态", "负责人", "下次跟进", "创建时间"];
+    const headers = [
+      "姓名",
+      "手机号",
+      "来源",
+      "意向",
+      "状态",
+      "负责人",
+      "下次跟进",
+      "创建时间"
+    ];
     const rows = result.items.map(item => [
       item.name,
       item.phone,
@@ -231,10 +256,14 @@ async function exportLeads() {
     ]);
 
     const csv = [headers, ...rows]
-      .map(row => row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(","))
+      .map(row =>
+        row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(",")
+      )
       .join("\n");
 
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;"
+    });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `招生线索-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -294,7 +323,8 @@ async function prevPage() {
 }
 
 async function nextPage() {
-  const max = activeTab.value === "leads" ? totalPages.value : studentPages.value;
+  const max =
+    activeTab.value === "leads" ? totalPages.value : studentPages.value;
   if (page.value >= max) return;
   page.value += 1;
   await syncByTab();
@@ -342,7 +372,7 @@ function statusClass(status: string) {
   <div class="system-page enrollment-page">
     <div v-if="error" class="message error">{{ error }}</div>
 
-    <section class="system-panel" v-if="dashboard">
+    <section v-if="dashboard" class="system-panel">
       <div class="section-head">
         <div>
           <p class="eyebrow">Enrollment Dashboard</p>
@@ -368,20 +398,38 @@ function statusClass(status: string) {
       <div class="chart-grid">
         <div class="chart-panel">
           <h3>渠道占比</h3>
-          <div v-for="item in dashboard.sourceDistribution" :key="item.source" class="bar-line">
+          <div
+            v-for="item in dashboard.sourceDistribution"
+            :key="item.source"
+            class="bar-line"
+          >
             <span>{{ item.source }}</span>
             <div class="bar-bg">
-              <div class="bar" :style="{ width: `${Math.max(4, (item.count / (dashboard.sourceDistribution[0]?.count || 1)) * 100)}%` }" />
+              <div
+                class="bar"
+                :style="{
+                  width: `${Math.max(4, (item.count / (dashboard.sourceDistribution[0]?.count || 1)) * 100)}%`
+                }"
+              />
             </div>
             <strong>{{ item.count }}</strong>
           </div>
         </div>
         <div class="chart-panel">
           <h3>负责人业绩排行</h3>
-          <div v-for="item in dashboard.ownerRanking" :key="`${item.ownerUserId}-${item.ownerName}`" class="bar-line">
+          <div
+            v-for="item in dashboard.ownerRanking"
+            :key="`${item.ownerUserId}-${item.ownerName}`"
+            class="bar-line"
+          >
             <span>{{ item.ownerName }}</span>
             <div class="bar-bg">
-              <div class="bar owner" :style="{ width: `${Math.max(4, (item.signedCount / (dashboard.ownerRanking[0]?.signedCount || 1)) * 100)}%` }" />
+              <div
+                class="bar owner"
+                :style="{
+                  width: `${Math.max(4, (item.signedCount / (dashboard.ownerRanking[0]?.signedCount || 1)) * 100)}%`
+                }"
+              />
             </div>
             <strong>{{ item.signedCount }}</strong>
           </div>
@@ -391,7 +439,11 @@ function statusClass(status: string) {
       <div class="funnel-panel">
         <h3>阶段漏斗（线索→到店→报名）</h3>
         <div class="funnel-list">
-          <div v-for="item in dashboard.funnel" :key="item.stage" class="funnel-item">
+          <div
+            v-for="item in dashboard.funnel"
+            :key="item.stage"
+            class="funnel-item"
+          >
             <span>{{ item.stage }}</span>
             <strong>{{ item.count }}</strong>
           </div>
@@ -405,12 +457,24 @@ function statusClass(status: string) {
           <p class="eyebrow">Lead Center</p>
           <h2>线索中心</h2>
         </div>
-        <span class="pill">线索 {{ total }} 条 / 已报名 {{ studentsTotal }} 条</span>
+        <span class="pill"
+          >线索 {{ total }} 条 / 已报名 {{ studentsTotal }} 条</span
+        >
       </div>
 
       <div class="tab-row">
-        <button :class="['ghost', { active: activeTab === 'leads' }]" @click="switchTab('leads')">线索列表</button>
-        <button :class="['ghost', { active: activeTab === 'students' }]" @click="switchTab('students')">学员池</button>
+        <button
+          :class="['ghost', { active: activeTab === 'leads' }]"
+          @click="switchTab('leads')"
+        >
+          线索列表
+        </button>
+        <button
+          :class="['ghost', { active: activeTab === 'students' }]"
+          @click="switchTab('students')"
+        >
+          学员池
+        </button>
       </div>
 
       <form class="system-form enrollment-filter" @submit.prevent="search">
@@ -422,34 +486,57 @@ function statusClass(status: string) {
           状态
           <select v-model="filters.status" :disabled="activeTab === 'students'">
             <option value="">全部</option>
-            <option v-for="item in statusOptions" :key="item" :value="item">{{ item }}</option>
+            <option v-for="item in statusOptions" :key="item" :value="item">
+              {{ item }}
+            </option>
           </select>
         </label>
         <label>
           来源
           <select v-model="filters.source" :disabled="activeTab === 'students'">
             <option value="">全部</option>
-            <option v-for="item in sourceOptions" :key="item" :value="item">{{ item }}</option>
+            <option v-for="item in sourceOptions" :key="item" :value="item">
+              {{ item }}
+            </option>
           </select>
         </label>
         <label>
           开始时间
-          <input v-model="filters.startDate" type="datetime-local" :disabled="activeTab === 'students'" />
+          <input
+            v-model="filters.startDate"
+            type="datetime-local"
+            :disabled="activeTab === 'students'"
+          />
         </label>
         <label>
           结束时间
-          <input v-model="filters.endDate" type="datetime-local" :disabled="activeTab === 'students'" />
+          <input
+            v-model="filters.endDate"
+            type="datetime-local"
+            :disabled="activeTab === 'students'"
+          />
         </label>
         <div class="system-form-actions">
-          <button class="primary" :disabled="loading" type="submit">查询</button>
-          <button class="ghost" type="button" @click="resetFilters">重置</button>
-          <button class="ghost" type="button" @click="exportLeads" :disabled="activeTab === 'students'">导出CSV</button>
+          <button class="primary" :disabled="loading" type="submit">
+            查询
+          </button>
+          <button class="ghost" type="button" @click="resetFilters">
+            重置
+          </button>
+          <button
+            class="ghost"
+            type="button"
+            :disabled="activeTab === 'students'"
+            @click="exportLeads"
+          >
+            导出CSV
+          </button>
         </div>
       </form>
 
       <div v-if="loading" class="message">正在加载数据...</div>
 
-      <div class="system-table enrollment-table" v-if="activeTab === 'leads'">
+      <div v-if="activeTab === 'leads'" class="system-table enrollment-table">
         <div class="system-table-row system-table-head">
           <span>姓名</span>
           <span>手机号</span>
@@ -461,7 +548,12 @@ function statusClass(status: string) {
           <span>创建时间</span>
           <span>操作</span>
         </div>
-        <div v-for="lead in leads" :key="lead.id" class="system-table-row" :class="{ active: selectedLead?.id === lead.id }">
+        <div
+          v-for="lead in leads"
+          :key="lead.id"
+          class="system-table-row"
+          :class="{ active: selectedLead?.id === lead.id }"
+        >
           <span class="name-link" @click="pickLead(lead)">{{ lead.name }}</span>
           <span>
             {{ lead.phone }}
@@ -482,7 +574,7 @@ function statusClass(status: string) {
         </div>
       </div>
 
-      <div class="system-table enrollment-table" v-else>
+      <div v-else class="system-table enrollment-table">
         <div class="system-table-row system-table-head">
           <span>姓名</span>
           <span>手机号</span>
@@ -491,7 +583,11 @@ function statusClass(status: string) {
           <span>负责人</span>
           <span>创建时间</span>
         </div>
-        <div v-for="student in students" :key="student.id" class="system-table-row">
+        <div
+          v-for="student in students"
+          :key="student.id"
+          class="system-table-row"
+        >
           <span>{{ student.name }}</span>
           <span>{{ student.phone }}</span>
           <span>{{ student.source }}</span>
@@ -502,13 +598,23 @@ function statusClass(status: string) {
       </div>
 
       <div class="pager-row">
-        <button class="ghost" :disabled="page <= 1 || loading" @click="prevPage">上一页</button>
+        <button
+          class="ghost"
+          :disabled="page <= 1 || loading"
+          @click="prevPage"
+        >
+          上一页
+        </button>
         <span>
-          第 {{ page }} / {{ activeTab === 'leads' ? totalPages : studentPages }} 页
+          第 {{ page }} /
+          {{ activeTab === "leads" ? totalPages : studentPages }} 页
         </span>
         <button
           class="ghost"
-          :disabled="page >= (activeTab === 'leads' ? totalPages : studentPages) || loading"
+          :disabled="
+            page >= (activeTab === 'leads' ? totalPages : studentPages) ||
+            loading
+          "
           @click="nextPage"
         >
           下一页
@@ -520,16 +626,28 @@ function statusClass(status: string) {
       <div class="section-head">
         <div>
           <p class="eyebrow">Lead Detail</p>
-          <h2>{{ selectedLead ? `线索详情 - ${selectedLead.name}` : "线索详情/跟进面板" }}</h2>
+          <h2>
+            {{
+              selectedLead
+                ? `线索详情 - ${selectedLead.name}`
+                : "线索详情/跟进面板"
+            }}
+          </h2>
         </div>
       </div>
 
-      <div v-if="!selectedLead" class="empty-state">点击线索姓名查看详情与跟进时间线</div>
+      <div v-if="!selectedLead" class="empty-state">
+        点击线索姓名查看详情与跟进时间线
+      </div>
 
       <template v-else>
         <div class="lead-meta">
           <span>手机号：{{ selectedLead.phone }}</span>
-          <span>状态：<i :class="statusClass(selectedLead.status)">{{ selectedLead.status }}</i></span>
+          <span
+            >状态：<i :class="statusClass(selectedLead.status)">{{
+              selectedLead.status
+            }}</i></span
+          >
           <span>意向：{{ selectedLead.intentLevel }}</span>
           <span>负责人：{{ selectedLead.ownerName || "未分配" }}</span>
         </div>
@@ -538,7 +656,13 @@ function statusClass(status: string) {
           <label>
             跟进方式
             <select v-model="followForm.followType">
-              <option v-for="item in followTypeOptions" :key="item" :value="item">{{ item }}</option>
+              <option
+                v-for="item in followTypeOptions"
+                :key="item"
+                :value="item"
+              >
+                {{ item }}
+              </option>
             </select>
           </label>
           <label>
@@ -547,10 +671,17 @@ function statusClass(status: string) {
           </label>
           <label class="wide-field">
             跟进内容
-            <textarea v-model="followForm.content" maxlength="500" placeholder="请输入跟进内容" required></textarea>
+            <textarea
+              v-model="followForm.content"
+              maxlength="500"
+              placeholder="请输入跟进内容"
+              required
+            />
           </label>
           <div class="system-form-actions">
-            <button class="primary" :disabled="followSaving" type="submit">新增跟进</button>
+            <button class="primary" :disabled="followSaving" type="submit">
+              新增跟进
+            </button>
           </div>
         </form>
 
@@ -564,10 +695,17 @@ function statusClass(status: string) {
             </div>
             <p>{{ item.content }}</p>
             <small>
-              下次跟进：{{ formatDateTime(item.nextFollowTime) }} ｜ 记录人：{{ item.creatorName || "系统" }}
+              下次跟进：{{ formatDateTime(item.nextFollowTime) }} ｜ 记录人：{{
+                item.creatorName || "系统"
+              }}
             </small>
           </article>
-          <div v-if="!followLoading && followUps.length === 0" class="empty-state">暂无跟进记录</div>
+          <div
+            v-if="!followLoading && followUps.length === 0"
+            class="empty-state"
+          >
+            暂无跟进记录
+          </div>
         </div>
       </template>
     </section>
@@ -584,16 +722,28 @@ function statusClass(status: string) {
       <form class="system-form enrollment-form" @submit.prevent="saveLead">
         <label>
           姓名
-          <input v-model="leadForm.name" maxlength="50" placeholder="请输入姓名" required />
+          <input
+            v-model="leadForm.name"
+            maxlength="50"
+            placeholder="请输入姓名"
+            required
+          />
         </label>
         <label>
           手机号
-          <input v-model="leadForm.phone" maxlength="20" placeholder="请输入手机号" required />
+          <input
+            v-model="leadForm.phone"
+            maxlength="20"
+            placeholder="请输入手机号"
+            required
+          />
         </label>
         <label>
           来源
           <select v-model="leadForm.source">
-            <option v-for="item in sourceOptions" :key="item" :value="item">{{ item }}</option>
+            <option v-for="item in sourceOptions" :key="item" :value="item">
+              {{ item }}
+            </option>
           </select>
         </label>
         <label>
@@ -607,12 +757,19 @@ function statusClass(status: string) {
         <label>
           状态
           <select v-model="leadForm.status">
-            <option v-for="item in statusOptions" :key="item" :value="item">{{ item }}</option>
+            <option v-for="item in statusOptions" :key="item" :value="item">
+              {{ item }}
+            </option>
           </select>
         </label>
         <label>
           负责人用户ID
-          <input v-model.number="leadForm.ownerUserId" min="1" type="number" placeholder="可留空" />
+          <input
+            v-model.number="leadForm.ownerUserId"
+            min="1"
+            type="number"
+            placeholder="可留空"
+          />
         </label>
         <label>
           下次跟进时间
@@ -620,13 +777,19 @@ function statusClass(status: string) {
         </label>
         <label class="wide-field">
           备注
-          <textarea v-model="leadForm.remark" maxlength="500" placeholder="备注信息"></textarea>
+          <textarea
+            v-model="leadForm.remark"
+            maxlength="500"
+            placeholder="备注信息"
+          />
         </label>
         <div class="system-form-actions">
           <button class="primary" :disabled="saving" type="submit">
             {{ editingId ? "保存修改" : "新增线索" }}
           </button>
-          <button class="ghost" type="button" @click="resetLeadForm">取消</button>
+          <button class="ghost" type="button" @click="resetLeadForm">
+            取消
+          </button>
         </div>
       </form>
     </section>
@@ -654,9 +817,9 @@ function statusClass(status: string) {
 .chart-panel,
 .funnel-panel {
   padding: 12px;
+  background: #fbfcfa;
   border: 1px solid #dfe5da;
   border-radius: 8px;
-  background: #fbfcfa;
 }
 
 .dash-grid strong {
@@ -666,10 +829,10 @@ function statusClass(status: string) {
 }
 
 .chart-grid {
-  margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  margin-top: 12px;
 }
 
 .bar-line {
@@ -682,14 +845,14 @@ function statusClass(status: string) {
 
 .bar-bg {
   height: 8px;
-  border-radius: 999px;
   background: #edf4e8;
+  border-radius: 999px;
 }
 
 .bar {
   height: 100%;
-  border-radius: 999px;
   background: #4f7665;
+  border-radius: 999px;
 }
 
 .bar.owner {
@@ -710,8 +873,8 @@ function statusClass(status: string) {
 .funnel-item {
   flex: 1 0 120px;
   padding: 10px;
-  border-radius: 8px;
   background: #edf4e8;
+  border-radius: 8px;
 }
 
 .tab-row {
@@ -740,23 +903,23 @@ function statusClass(status: string) {
 
 .name-link {
   color: #28679b;
-  cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+  cursor: pointer;
 }
 
 .dial-link {
   margin-left: 8px;
-  color: #28679b;
   font-weight: 700;
+  color: #28679b;
 }
 
 .status-tag {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  border-radius: 999px;
 }
 
 .status-tag.fresh {
@@ -786,22 +949,22 @@ function statusClass(status: string) {
 
 .pager-row {
   display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
   margin-top: 14px;
 }
 
 textarea {
-  min-height: 84px;
   width: 100%;
+  min-height: 84px;
   padding: 9px 11px;
+  color: #17201b;
+  resize: vertical;
+  outline: none;
+  background: #fbfcfa;
   border: 1px solid #dfe5da;
   border-radius: 8px;
-  color: #17201b;
-  background: #fbfcfa;
-  outline: none;
-  resize: vertical;
 }
 
 .lead-meta {
@@ -813,8 +976,8 @@ textarea {
 
 .lead-meta span {
   padding: 6px 10px;
-  border-radius: 999px;
   background: #edf4e8;
+  border-radius: 999px;
 }
 
 .timeline {
@@ -825,16 +988,16 @@ textarea {
 
 .follow-item {
   padding: 14px;
+  background: #fbfcfa;
   border: 1px solid #dfe5da;
   border-radius: 8px;
-  background: #fbfcfa;
 }
 
 .follow-head {
   display: flex;
+  gap: 10px;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
 }
 
 .follow-item p {
@@ -846,7 +1009,7 @@ textarea {
   color: #627066;
 }
 
-@media (max-width: 980px) {
+@media (width <= 980px) {
   .enrollment-filter,
   .enrollment-form,
   .follow-form,

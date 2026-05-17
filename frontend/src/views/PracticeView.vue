@@ -10,7 +10,9 @@ const practiceIndex = ref(0);
 const selectedAnswer = ref<OptionKey | "">("");
 const loading = ref(false);
 const error = ref("");
-const practiceExamType = ref(localStorage.getItem("reservedExamType") || "科目一");
+const practiceExamType = ref(
+  localStorage.getItem("reservedExamType") || "科目一"
+);
 
 const optionKeys = computed<OptionKey[]>(() => {
   const q = currentQuestion.value;
@@ -28,7 +30,9 @@ const progress = computed(() => {
 const answerTitle = computed(() => {
   if (!selectedAnswer.value || !currentQuestion.value) return "请选择一个答案";
   if (selectedAnswer.value === currentQuestion.value.answer) return "回答正确";
-  return isLoggedIn.value ? "回答错误，已加入错题本" : "回答错误，登录后可保存错题";
+  return isLoggedIn.value
+    ? "回答错误，已加入错题本"
+    : "回答错误，登录后可保存错题";
 });
 
 onMounted(loadQuestions);
@@ -115,7 +119,9 @@ function nextQuestion() {
           :class="{
             selected: selectedAnswer === key,
             correct: selectedAnswer && currentQuestion.answer === key,
-            wrong: selectedAnswer === key && selectedAnswer !== currentQuestion.answer
+            wrong:
+              selectedAnswer === key &&
+              selectedAnswer !== currentQuestion.answer
           }"
           :disabled="!!selectedAnswer"
           @click="chooseAnswer(key)"
@@ -125,11 +131,16 @@ function nextQuestion() {
         </button>
       </div>
 
-      <div class="answer-card practice-feedback" :class="{ empty: !selectedAnswer }">
+      <div
+        class="answer-card practice-feedback"
+        :class="{ empty: !selectedAnswer }"
+      >
         <div>
           <strong>{{ answerTitle }}</strong>
           <p v-if="selectedAnswer">
-            正确答案：{{ currentQuestion.answer }}。{{ currentQuestion.explanation }}
+            正确答案：{{ currentQuestion.answer }}。{{
+              currentQuestion.explanation
+            }}
           </p>
           <p v-else>作答后这里会显示对错状态和本题解析。</p>
         </div>

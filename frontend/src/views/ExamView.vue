@@ -11,7 +11,9 @@ const error = ref("");
 const optionKeys: OptionKey[] = ["A", "B", "C", "D"];
 const examCount = 20;
 const questionScore = 5;
-const currentExamType = ref(localStorage.getItem("reservedExamType") || "科目一");
+const currentExamType = ref(
+  localStorage.getItem("reservedExamType") || "科目一"
+);
 
 const answeredCount = computed(() => Object.keys(examAnswers.value).length);
 const examProgress = computed(
@@ -139,16 +141,26 @@ async function submitExam() {
             </div>
             <div v-if="examAnswers[question.id]" class="exam-feedback">
               <strong>
-                {{ examAnswers[question.id] === question.answer ? "回答正确" : "回答错误" }}
+                {{
+                  examAnswers[question.id] === question.answer
+                    ? "回答正确"
+                    : "回答错误"
+                }}
               </strong>
-              <span>正确答案：{{ question.answer }}。{{ question.explanation }}</span>
+              <span
+                >正确答案：{{ question.answer }}。{{
+                  question.explanation
+                }}</span
+              >
             </div>
           </article>
         </div>
         <div v-if="examResult" class="result-box">
           <strong>{{ examResult.score }} 分</strong>
           <span>正确 {{ examResult.correct }} / {{ examResult.total }} 题</span>
-          <p v-if="examResult.wrongQuestions.length">未掌握题目已汇总到错题反馈。</p>
+          <p v-if="examResult.wrongQuestions.length">
+            未掌握题目已汇总到错题反馈。
+          </p>
           <p v-else>本次模拟考试全部答对。</p>
         </div>
       </div>

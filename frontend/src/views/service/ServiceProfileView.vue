@@ -28,16 +28,16 @@ const profileText = computed(() => {
 <style scoped>
 .panel {
   padding: 22px;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 8px 20px rgba(14, 46, 80, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgb(14 46 80 / 10%);
 }
 
 ul {
-  margin: 10px 0;
   padding-left: 18px;
-  color: #4d6784;
+  margin: 10px 0;
   line-height: 1.8;
+  color: #4d6784;
 }
 
 small {

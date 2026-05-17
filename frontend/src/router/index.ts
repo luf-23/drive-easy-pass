@@ -158,9 +158,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   }
   /** 已登录用户点击登录/注册时留在业务页；报考门户等仍在 whiteList 中但此处不拦截 */
   function toCorrectRoute() {
-    authEntryPaths.has(to.path)
-      ? next(_from.fullPath || "/home")
-      : next();
+    authEntryPaths.has(to.path) ? next(_from.fullPath || "/home") : next();
   }
   if (Cookies.get(multipleTabsKey) && userInfo) {
     if (
@@ -180,8 +178,14 @@ router.beforeEach((to: ToRouteType, _from, next) => {
         const route = findRouteByPath(path, router.options.routes[0].children);
         getTopMenu(true);
         if (route && route.meta?.title) {
-          const routeChildren = Array.isArray(route.children) ? route.children : [];
-          if (isAllEmpty(route.parentId) && route.meta?.backstage && routeChildren[0]) {
+          const routeChildren = Array.isArray(route.children)
+            ? route.children
+            : [];
+          if (
+            isAllEmpty(route.parentId) &&
+            route.meta?.backstage &&
+            routeChildren[0]
+          ) {
             const { path, name, meta } = routeChildren[0];
             useMultiTagsStoreHook().handleTags("push", {
               path,
@@ -229,12 +233,21 @@ router.beforeEach((to: ToRouteType, _from, next) => {
         usePermissionStoreHook().handleWholeMenus([]);
         if (!useMultiTagsStoreHook().getMultiTagsCache) {
           const { path } = to;
-          const route = findRouteByPath(path, router.options.routes[0].children);
+          const route = findRouteByPath(
+            path,
+            router.options.routes[0].children
+          );
           getTopMenu(true);
           // query、params模式路由传参数的标签页不在此处处理
           if (route && route.meta?.title) {
-            const routeChildren = Array.isArray(route.children) ? route.children : [];
-            if (isAllEmpty(route.parentId) && route.meta?.backstage && routeChildren[0]) {
+            const routeChildren = Array.isArray(route.children)
+              ? route.children
+              : [];
+            if (
+              isAllEmpty(route.parentId) &&
+              route.meta?.backstage &&
+              routeChildren[0]
+            ) {
               // 此处为动态顶级路由（目录）
               const { path, name, meta } = routeChildren[0];
               useMultiTagsStoreHook().handleTags("push", {

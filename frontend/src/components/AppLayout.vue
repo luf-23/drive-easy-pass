@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { useAuth } from '../stores/auth'
+import { useRouter } from "vue-router";
+import { useAuth } from "../stores/auth";
 
-const router = useRouter()
-const { user, isLoggedIn, logout } = useAuth()
+const router = useRouter();
+const { user, isLoggedIn, logout } = useAuth();
 
 function handleLogout() {
-  logout()
-  router.push('/login')
+  logout();
+  router.push("/login");
 }
 </script>
 

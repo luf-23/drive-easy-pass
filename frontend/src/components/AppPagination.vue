@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ElPagination } from 'element-plus'
+import { ElPagination } from "element-plus";
 
 defineProps<{
-  page: number
-  totalPages: number
-}>()
+  page: number;
+  totalPages: number;
+}>();
 
 const emit = defineEmits<{
-  change: [page: number]
-}>()
+  change: [page: number];
+}>();
 </script>
 
 <template>

@@ -309,7 +309,10 @@ p {
 .home-dashboard {
   min-height: 0;
   flex: 1 1 auto;
-  grid-template-rows: minmax(180px, 0.82fr) minmax(96px, auto) minmax(126px, auto);
+  grid-template-rows: minmax(180px, 0.82fr) minmax(96px, auto) minmax(
+      126px,
+      auto
+    );
   overflow: hidden;
 }
 
@@ -1112,5 +1115,4 @@ p {
   .hero-actions {
     justify-content: flex-start;
   }
-
 }

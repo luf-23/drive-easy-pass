@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   createAdminRoute,
   deleteAdminRoute,
@@ -9,12 +10,15 @@ import {
 } from "@/api/admin";
 import type { AppRoute } from "@/types";
 
+type RouteForm = AppRoutePayload;
+
 const routes = ref<AppRoute[]>([]);
 const loading = ref(false);
-const error = ref("");
+const saving = ref(false);
+const dialogVisible = ref(false);
 const editingId = ref<number | null>(null);
 
-const form = reactive<AppRoutePayload>({
+const form = reactive<RouteForm>({
   path: "",
   name: "",
   title: "",
@@ -34,14 +38,18 @@ onMounted(loadRoutes);
 
 async function loadRoutes() {
   loading.value = true;
-  error.value = "";
   try {
     routes.value = await getAdminRoutes();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "路由列表加载失败";
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "路由列表加载失败");
   } finally {
     loading.value = false;
   }
+}
+
+function openCreate() {
+  resetForm();
+  dialogVisible.value = true;
 }
 
 function resetForm() {
@@ -72,131 +80,196 @@ function editRoute(route: AppRoute) {
     rankNo: route.rankNo,
     enabled: route.enabled
   });
+  dialogVisible.value = true;
 }
 
 async function saveRoute() {
-  loading.value = true;
-  error.value = "";
+  if (!form.path.trim() || !form.name.trim() || !form.title.trim()) {
+    ElMessage.warning("请填写路径、路由名和菜单标题");
+    return;
+  }
+
+  saving.value = true;
   try {
+    const payload: RouteForm = {
+      ...form,
+      path: form.path.trim(),
+      name: form.name.trim(),
+      title: form.title.trim(),
+      redirect: form.redirect.trim(),
+      component: form.component.trim(),
+      icon: form.icon.trim()
+    };
+
     if (editingId.value) {
-      await updateAdminRoute(editingId.value, form);
+      await updateAdminRoute(editingId.value, payload);
+      ElMessage.success("路由已更新");
     } else {
-      await createAdminRoute(form);
+      await createAdminRoute(payload);
+      ElMessage.success("路由已新增");
     }
+
+    dialogVisible.value = false;
     resetForm();
     await loadRoutes();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "路由保存失败";
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "路由保存失败");
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
 }
 
 async function removeRoute(route: AppRoute) {
-  if (!window.confirm(`确认删除路由「${route.title}」？`)) return;
-  loading.value = true;
-  error.value = "";
   try {
+    await ElMessageBox.confirm(`确认删除路由「${route.title}」？`, "删除确认", {
+      type: "warning",
+      confirmButtonText: "删除",
+      cancelButtonText: "取消"
+    });
     await deleteAdminRoute(route.id);
+    ElMessage.success("路由已删除");
     await loadRoutes();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "路由删除失败";
-  } finally {
-    loading.value = false;
+  } catch (error) {
+    if (error !== "cancel") {
+      ElMessage.error(error instanceof Error ? error.message : "路由删除失败");
+    }
   }
+}
+
+function parentTitle(parentId: number | null) {
+  if (parentId == null) return "无";
+  return routes.value.find(item => item.id === parentId)?.title ?? `#${parentId}`;
 }
 </script>
 
 <template>
-  <div class="system-page">
-    <div v-if="error" class="message error">{{ error }}</div>
+  <div class="system-manage-page">
+    <el-card shadow="never">
+      <template #header>
+        <div class="card-header">
+          <div>
+            <h2>路由管理</h2>
+            <p>维护后台菜单和页面路由。</p>
+          </div>
+          <el-space>
+            <el-button :loading="loading" @click="loadRoutes">刷新</el-button>
+            <el-button type="primary" @click="openCreate">新增路由</el-button>
+          </el-space>
+        </div>
+      </template>
 
-    <section class="system-panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Route Management</p>
-          <h2>路由管理</h2>
-        </div>
-        <button class="ghost" @click="resetForm">新建路由</button>
-      </div>
+      <el-table v-loading="loading" :data="routes" row-key="id" border>
+        <el-table-column prop="title" label="菜单标题" min-width="150" />
+        <el-table-column prop="path" label="路径" min-width="220" />
+        <el-table-column prop="name" label="路由名" min-width="160" />
+        <el-table-column label="父级" min-width="130">
+          <template #default="{ row }">
+            {{ parentTitle(row.parentId) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="component" label="组件" min-width="170" />
+        <el-table-column prop="rankNo" label="排序" width="80" />
+        <el-table-column label="状态" width="90">
+          <template #default="{ row }">
+            <el-tag :type="row.enabled ? 'success' : 'info'">
+              {{ row.enabled ? "启用" : "停用" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="editRoute(row)">
+              编辑
+            </el-button>
+            <el-button link type="danger" @click="removeRoute(row)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
 
-      <form class="system-form" @submit.prevent="saveRoute">
-        <label>
-          路径
-          <input v-model="form.path" placeholder="/operation/system/routes" required />
-        </label>
-        <label>
-          路由名
-          <input v-model="form.name" placeholder="RouteManagement" required />
-        </label>
-        <label>
-          菜单标题
-          <input v-model="form.title" placeholder="路由管理" required />
-        </label>
-        <label>
-          父级
-          <select v-model="form.parentId">
-            <option :value="null">无父级</option>
-            <option v-for="item in parentOptions" :key="item.id" :value="item.id">
-              {{ item.title }}
-            </option>
-          </select>
-        </label>
-        <label>
-          组件标识
-          <input v-model="form.component" placeholder="SystemRouteView" />
-        </label>
-        <label>
-          图标
-          <input v-model="form.icon" placeholder="ep/menu" />
-        </label>
-        <label>
-          排序
-          <input v-model.number="form.rankNo" min="0" type="number" />
-        </label>
-        <label class="switch-line">
-          <input v-model="form.enabled" type="checkbox" />
-          启用
-        </label>
-        <div class="system-form-actions">
-          <button class="primary" :disabled="loading" type="submit">
-            {{ editingId ? "保存修改" : "新增路由" }}
-          </button>
-          <button class="ghost" type="button" @click="resetForm">取消</button>
-        </div>
-      </form>
-    </section>
+    <el-dialog
+      v-model="dialogVisible"
+      :title="editingId ? '编辑路由' : '新增路由'"
+      width="640px"
+      @closed="resetForm"
+    >
+      <el-form :model="form" label-width="92px">
+        <el-form-item label="路径" required>
+          <el-input v-model="form.path" placeholder="/operation/system/routes" />
+        </el-form-item>
+        <el-form-item label="路由名" required>
+          <el-input v-model="form.name" placeholder="RouteManagement" />
+        </el-form-item>
+        <el-form-item label="菜单标题" required>
+          <el-input v-model="form.title" placeholder="路由管理" />
+        </el-form-item>
+        <el-form-item label="父级">
+          <el-select v-model="form.parentId" clearable placeholder="无父级">
+            <el-option
+              v-for="item in parentOptions"
+              :key="item.id"
+              :label="item.title"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="重定向">
+          <el-input v-model="form.redirect" placeholder="/operation/dashboard" />
+        </el-form-item>
+        <el-form-item label="组件">
+          <el-input v-model="form.component" placeholder="RouteManagement" />
+        </el-form-item>
+        <el-form-item label="图标">
+          <el-input v-model="form.icon" placeholder="ep/menu" />
+        </el-form-item>
+        <el-form-item label="排序">
+          <el-input-number v-model="form.rankNo" :min="0" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-switch
+            v-model="form.enabled"
+            active-text="启用"
+            inactive-text="停用"
+          />
+        </el-form-item>
+      </el-form>
 
-    <section class="system-panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Route Table</p>
-          <h2>路由清单</h2>
-        </div>
-        <span class="pill">{{ routes.length }} 条</span>
-      </div>
-
-      <div class="system-table">
-        <div class="system-table-row system-table-head">
-          <span>标题</span>
-          <span>路径</span>
-          <span>路由名</span>
-          <span>排序</span>
-          <span>状态</span>
-          <span>操作</span>
-        </div>
-        <div v-for="route in routes" :key="route.id" class="system-table-row">
-          <span>{{ route.title }}</span>
-          <span>{{ route.path }}</span>
-          <span>{{ route.name }}</span>
-          <span>{{ route.rankNo }}</span>
-          <span>{{ route.enabled ? "启用" : "停用" }}</span>
-          <span class="table-actions">
-            <button class="ghost" @click="editRoute(route)">编辑</button>
-            <button class="danger" @click="removeRoute(route)">删除</button>
-          </span>
-        </div>
-      </div>
-    </section>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="saveRoute">
+          保存
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.system-manage-page {
+  padding: 16px;
+}
+
+.card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.card-header p {
+  margin: 4px 0 0;
+  color: var(--el-text-color-secondary);
+}
+
+:deep(.el-select) {
+  width: 100%;
+}
+</style>

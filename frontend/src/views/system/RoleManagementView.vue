@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   createRole,
   deleteRole,
@@ -10,10 +11,15 @@ import {
 } from "@/api/admin";
 import type { AppRoute, Role } from "@/types";
 
+type RouteTreeNode = AppRoute & {
+  children?: RouteTreeNode[];
+};
+
 const roles = ref<Role[]>([]);
 const routes = ref<AppRoute[]>([]);
 const loading = ref(false);
-const error = ref("");
+const saving = ref(false);
+const dialogVisible = ref(false);
 const editingId = ref<number | null>(null);
 
 const form = reactive<RolePayload>({
@@ -25,21 +31,29 @@ const form = reactive<RolePayload>({
 });
 
 const enabledRoutes = computed(() => routes.value.filter(item => item.enabled));
+const routeTree = computed(() => buildRouteTree(enabledRoutes.value));
 
 onMounted(loadData);
 
 async function loadData() {
   loading.value = true;
-  error.value = "";
   try {
-    const [nextRoles, nextRoutes] = await Promise.all([getRoles(), getAdminRoutes()]);
+    const [nextRoles, nextRoutes] = await Promise.all([
+      getRoles(),
+      getAdminRoutes()
+    ]);
     roles.value = nextRoles;
     routes.value = nextRoutes;
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "角色数据加载失败";
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "角色数据加载失败");
   } finally {
     loading.value = false;
   }
+}
+
+function openCreate() {
+  resetForm();
+  dialogVisible.value = true;
 }
 
 function resetForm() {
@@ -62,117 +76,213 @@ function editRole(role: Role) {
     enabled: role.enabled,
     routeIds: [...role.routeIds]
   });
+  dialogVisible.value = true;
 }
 
 async function saveRole() {
-  loading.value = true;
-  error.value = "";
+  if (!form.code.trim() || !form.name.trim()) {
+    ElMessage.warning("请填写角色编码和角色名称");
+    return;
+  }
+
+  saving.value = true;
   try {
+    const payload: RolePayload = {
+      ...form,
+      code: form.code.trim(),
+      name: form.name.trim(),
+      description: form.description.trim(),
+      routeIds: [...form.routeIds]
+    };
+
     if (editingId.value) {
-      await updateRole(editingId.value, form);
+      await updateRole(editingId.value, payload);
+      ElMessage.success("角色已更新");
     } else {
-      await createRole(form);
+      await createRole(payload);
+      ElMessage.success("角色已新增");
     }
+
+    dialogVisible.value = false;
     resetForm();
     await loadData();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "角色保存失败";
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "角色保存失败");
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
 }
 
 async function removeRole(role: Role) {
-  if (!window.confirm(`确认删除角色「${role.name}」？`)) return;
-  loading.value = true;
-  error.value = "";
   try {
+    await ElMessageBox.confirm(`确认删除角色「${role.name}」？`, "删除确认", {
+      type: "warning",
+      confirmButtonText: "删除",
+      cancelButtonText: "取消"
+    });
     await deleteRole(role.id);
+    ElMessage.success("角色已删除");
     await loadData();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "角色删除失败";
-  } finally {
-    loading.value = false;
+  } catch (error) {
+    if (error !== "cancel") {
+      ElMessage.error(error instanceof Error ? error.message : "角色删除失败");
+    }
   }
 }
 
 function routeTitles(role: Role) {
   const titleMap = new Map(routes.value.map(route => [route.id, route.title]));
-  return role.routeIds.map(id => titleMap.get(id)).filter(Boolean).join("、") || "未分配";
+  const titles = role.routeIds
+    .map(id => titleMap.get(id))
+    .filter((title): title is string => Boolean(title));
+
+  return titles.length ? titles.join("、") : "未分配";
+}
+
+function buildRouteTree(source: AppRoute[]) {
+  const nodeMap = new Map<number, RouteTreeNode>();
+  const roots: RouteTreeNode[] = [];
+
+  source.forEach(route => {
+    nodeMap.set(route.id, { ...route, children: [] });
+  });
+
+  nodeMap.forEach(node => {
+    if (node.parentId != null && nodeMap.has(node.parentId)) {
+      nodeMap.get(node.parentId)?.children?.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  return roots;
 }
 </script>
 
 <template>
-  <div class="system-page">
-    <div v-if="error" class="message error">{{ error }}</div>
-
-    <section class="system-panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Role Management</p>
-          <h2>角色管理</h2>
-        </div>
-        <button class="ghost" @click="resetForm">新建角色</button>
-      </div>
-
-      <form class="system-form role-form" @submit.prevent="saveRole">
-        <label>
-          角色编码
-          <input v-model="form.code" placeholder="admin" required />
-        </label>
-        <label>
-          角色名称
-          <input v-model="form.name" placeholder="管理员" required />
-        </label>
-        <label class="wide-field">
-          描述
-          <input v-model="form.description" placeholder="角色职责说明" />
-        </label>
-        <label class="switch-line">
-          <input v-model="form.enabled" type="checkbox" />
-          启用
-        </label>
-
-        <div class="route-checks wide-field">
-          <strong>可访问路由</strong>
-          <label v-for="route in enabledRoutes" :key="route.id">
-            <input v-model="form.routeIds" :value="route.id" type="checkbox" />
-            {{ route.title }}
-          </label>
-        </div>
-
-        <div class="system-form-actions">
-          <button class="primary" :disabled="loading" type="submit">
-            {{ editingId ? "保存修改" : "新增角色" }}
-          </button>
-          <button class="ghost" type="button" @click="resetForm">取消</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="system-panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Role Table</p>
-          <h2>角色清单</h2>
-        </div>
-        <span class="pill">{{ roles.length }} 个角色</span>
-      </div>
-
-      <div class="role-list">
-        <article v-for="role in roles" :key="role.id" class="role-item">
+  <div class="system-manage-page">
+    <el-card shadow="never">
+      <template #header>
+        <div class="card-header">
           <div>
-            <span>{{ role.enabled ? "启用" : "停用" }}</span>
-            <h3>{{ role.name }} / {{ role.code }}</h3>
-            <p>{{ role.description || "暂无描述" }}</p>
-            <small>路由：{{ routeTitles(role) }}</small>
+            <h2>角色管理</h2>
+            <p>维护角色基础信息和可访问路由。</p>
           </div>
-          <div class="table-actions">
-            <button class="ghost" @click="editRole(role)">编辑</button>
-            <button class="danger" @click="removeRole(role)">删除</button>
-          </div>
-        </article>
-      </div>
-    </section>
+          <el-space>
+            <el-button :loading="loading" @click="loadData">刷新</el-button>
+            <el-button type="primary" @click="openCreate">新增角色</el-button>
+          </el-space>
+        </div>
+      </template>
+
+      <el-table v-loading="loading" :data="roles" row-key="id" border>
+        <el-table-column prop="name" label="角色名称" min-width="140" />
+        <el-table-column prop="code" label="角色编码" min-width="130" />
+        <el-table-column prop="description" label="描述" min-width="180">
+          <template #default="{ row }">
+            {{ row.description || "暂无描述" }}
+          </template>
+        </el-table-column>
+        <el-table-column label="可访问路由" min-width="260">
+          <template #default="{ row }">
+            <el-text line-clamp="2">{{ routeTitles(row) }}</el-text>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="90">
+          <template #default="{ row }">
+            <el-tag :type="row.enabled ? 'success' : 'info'">
+              {{ row.enabled ? "启用" : "停用" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="editRole(row)">
+              编辑
+            </el-button>
+            <el-button link type="danger" @click="removeRole(row)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
+    <el-dialog
+      v-model="dialogVisible"
+      :title="editingId ? '编辑角色' : '新增角色'"
+      width="680px"
+      @closed="resetForm"
+    >
+      <el-form :model="form" label-width="92px">
+        <el-form-item label="角色编码" required>
+          <el-input v-model="form.code" placeholder="admin" />
+        </el-form-item>
+        <el-form-item label="角色名称" required>
+          <el-input v-model="form.name" placeholder="管理员" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            placeholder="角色职责说明"
+          />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-switch
+            v-model="form.enabled"
+            active-text="启用"
+            inactive-text="停用"
+          />
+        </el-form-item>
+        <el-form-item label="访问路由">
+          <el-tree
+            v-model:checked-keys="form.routeIds"
+            :data="routeTree"
+            node-key="id"
+            show-checkbox
+            default-expand-all
+            :props="{ label: 'title', children: 'children' }"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="saveRole">
+          保存
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.system-manage-page {
+  padding: 16px;
+}
+
+.card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.card-header p {
+  margin: 4px 0 0;
+  color: var(--el-text-color-secondary);
+}
+
+:deep(.el-tree) {
+  width: 100%;
+  padding: 8px 0;
+}
+</style>

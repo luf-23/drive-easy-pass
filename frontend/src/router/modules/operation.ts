@@ -4,7 +4,7 @@ export default {
   path: "/operation",
   name: "OperationCenter",
   component: Layout,
-  redirect: "/welcome",
+  redirect: "/operation/dashboard",
   meta: {
     icon: "ep/data-board",
     title: "中台管理",
@@ -12,7 +12,16 @@ export default {
   },
   children: [
     {
-      path: "/operation/enrollment",
+      path: "/operation/dashboard",
+      name: "AdminDashboard",
+      component: () => import("@/views/welcome/index.vue"),
+      meta: {
+        title: "工作台",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/enrollment/intents",
       name: "Enrollment",
       component: () => import("@/views/operation/EnrollmentManagementView.vue"),
       meta: {

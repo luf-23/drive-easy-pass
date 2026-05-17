@@ -79,7 +79,7 @@ async function submit() {
         </label>
         <label class="wide">
           备注
-          <textarea v-model="form.remark" placeholder="可填写你的时间偏好"></textarea>
+          <textarea v-model="form.remark" placeholder="可填写你的时间偏好" />
         </label>
         <button class="submit" :disabled="submitting" type="submit">
           {{ submitting ? "提交中..." : "立即报名" }}
@@ -99,23 +99,23 @@ async function submit() {
 
 .panel {
   padding: 22px;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 8px 20px rgba(14, 46, 80, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgb(14 46 80 / 10%);
 }
 
 .signup-form {
-  margin-top: 14px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  margin-top: 14px;
 }
 
 label {
   display: grid;
   gap: 6px;
-  color: #2f4f6c;
   font-weight: 700;
+  color: #2f4f6c;
 }
 
 input,
@@ -124,9 +124,9 @@ textarea {
   width: 100%;
   min-height: 40px;
   padding: 8px 10px;
+  background: #f7fbff;
   border: 1px solid #d8e6f5;
   border-radius: 10px;
-  background: #f7fbff;
 }
 
 textarea {
@@ -141,10 +141,10 @@ textarea {
 
 .submit {
   min-height: 42px;
-  border-radius: 10px;
-  color: #103c62;
   font-weight: 800;
+  color: #103c62;
   background: #f7be3b;
+  border-radius: 10px;
 }
 
 .ok {
@@ -157,7 +157,7 @@ textarea {
   color: #be3f35;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .signup-form {
     grid-template-columns: 1fr;
   }

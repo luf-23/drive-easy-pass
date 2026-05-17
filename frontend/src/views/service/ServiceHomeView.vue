@@ -43,8 +43,12 @@ async function loadPackages() {
       <h1>通过率高、训练场近、报名流程透明</h1>
       <p>一人一车、全程教练跟进、关键节点提醒，帮你更快拿证。</p>
       <div class="hero-actions">
-        <RouterLink class="cta" to="/service/exam-booking">考试预约（科一至科四）</RouterLink>
-        <RouterLink class="cta secondary" to="/service/signup">意向报名</RouterLink>
+        <RouterLink class="cta" to="/service/exam-booking"
+          >考试预约（科一至科四）</RouterLink
+        >
+        <RouterLink class="cta secondary" to="/service/signup"
+          >意向报名</RouterLink
+        >
       </div>
     </section>
 
@@ -67,7 +71,7 @@ async function loadPackages() {
       </article>
     </section>
 
-    <section class="panel" v-if="error">{{ error }}</section>
+    <section v-if="error" class="panel">{{ error }}</section>
 
     <section class="packages panel">
       <div class="head">
@@ -100,11 +104,11 @@ async function loadPackages() {
 
 .hero {
   padding: 36px;
-  border-radius: 16px;
   color: #fff;
   background-position: center;
   background-size: cover;
-  box-shadow: 0 16px 34px rgba(14, 46, 80, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 16px 34px rgb(14 46 80 / 25%);
   transition: background-image 0.6s ease;
 }
 
@@ -120,10 +124,10 @@ async function loadPackages() {
 }
 
 .hero-actions {
-  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 20px;
 }
 
 .cta {
@@ -131,20 +135,17 @@ async function loadPackages() {
   place-items: center;
   min-height: 40px;
   padding: 9px 16px;
-  border-radius: 10px;
   font-weight: 700;
-  text-decoration: none;
-}
-
-.cta {
   color: #123a5f;
+  text-decoration: none;
   background: #f7be3b;
+  border-radius: 10px;
 }
 
 .cta.secondary {
-  background: transparent;
   color: #ffe7a8;
-  border: 2px solid rgba(255, 247, 200, 0.55);
+  background: transparent;
+  border: 2px solid rgb(255 247 200 / 55%);
 }
 
 .value-grid {
@@ -156,9 +157,9 @@ async function loadPackages() {
 .value-grid article,
 .panel {
   padding: 16px;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 8px 20px rgba(14, 46, 80, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgb(14 46 80 / 10%);
 }
 
 .value-grid strong {
@@ -182,18 +183,18 @@ async function loadPackages() {
 
 .pkg-card {
   padding: 14px;
+  background: #f9fcff;
   border: 1px solid #dfebf8;
   border-radius: 12px;
-  background: #f9fcff;
 }
 
 .tag {
   display: inline-block;
   padding: 4px 8px;
-  border-radius: 999px;
+  font-size: 12px;
   color: #145387;
   background: #deedff;
-  font-size: 12px;
+  border-radius: 999px;
 }
 
 .price {
@@ -204,19 +205,19 @@ async function loadPackages() {
 }
 
 ul {
-  margin: 10px 0;
   padding-left: 18px;
+  margin: 10px 0;
   color: #45617f;
 }
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .value-grid,
   .card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .hero {
     padding: 24px;
   }

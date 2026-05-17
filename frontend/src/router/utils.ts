@@ -28,7 +28,6 @@ const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
-
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
   return isAllEmpty(parentId)
@@ -165,6 +164,9 @@ function handleAsyncRoutes(routeList) {
   } else {
     formatFlatteningRoutes(addAsyncRoutes(routeList)).map(
       (v: RouteRecordRaw) => {
+        // 后端菜单目录只用于侧边栏层级，不作为内容区页面注册。
+        // 否则 Layout 目录会被渲染到已有 Layout 内，造成后台界面嵌套。
+        if (Array.isArray(v.children) && v.children.length > 0) return;
         // 防止重复添加路由
         if (
           router.options.routes[0].children.findIndex(
@@ -317,7 +319,10 @@ function addAsyncRoutes(arrRoutes: Array<RouteRecordRaw>) {
       const index = v?.component
         ? modulesRoutesKeys.findIndex(ev => ev.includes(v.component as any))
         : modulesRoutesKeys.findIndex(ev => ev.includes(v.path));
-      v.component = index >= 0 ? modulesRoutes[modulesRoutesKeys[index]] : modulesRoutes["/src/views/welcome/index.vue"];
+      v.component =
+        index >= 0
+          ? modulesRoutes[modulesRoutesKeys[index]]
+          : modulesRoutes["/src/views/error/404.vue"];
     }
     if (children.length) {
       addAsyncRoutes(children as Array<RouteRecordRaw>);

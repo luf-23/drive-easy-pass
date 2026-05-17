@@ -19,23 +19,23 @@
 <style scoped>
 .service-layout {
   min-height: 100vh;
-  background: linear-gradient(180deg, #eaf4ff 0%, #f8fbff 44%, #ffffff 100%);
+  background: linear-gradient(180deg, #eaf4ff 0%, #f8fbff 44%, #fff 100%);
 }
 
 .service-header {
   display: flex;
+  gap: 20px;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
   padding: 14px 22px;
   background: #0b3d6b;
-  box-shadow: 0 10px 24px rgba(6, 35, 62, 0.24);
+  box-shadow: 0 10px 24px rgb(6 35 62 / 24%);
 }
 
 .brand {
-  color: #fff;
   font-size: 18px;
   font-weight: 800;
+  color: #fff;
 }
 
 nav {
@@ -46,9 +46,9 @@ nav {
 
 nav a {
   padding: 8px 12px;
-  border-radius: 999px;
-  color: #d7e9ff;
   font-weight: 700;
+  color: #d7e9ff;
+  border-radius: 999px;
 }
 
 nav a.router-link-active {
@@ -58,11 +58,11 @@ nav a.router-link-active {
 
 .service-main {
   max-width: 1180px;
-  margin: 0 auto;
   padding: 22px;
+  margin: 0 auto;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .service-header {
     flex-direction: column;
     align-items: flex-start;

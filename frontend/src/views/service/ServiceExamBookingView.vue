@@ -215,7 +215,9 @@ onMounted(reloadAll);
             <td>
               <template v-if="r.status === 'completed'">
                 {{ r.score ?? "—" }} /
-                {{ r.passed === "Y" ? "合格" : r.passed === "N" ? "不合格" : "—" }}
+                {{
+                  r.passed === "Y" ? "合格" : r.passed === "N" ? "不合格" : "—"
+                }}
               </template>
               <template v-else>—</template>
             </td>
@@ -246,9 +248,9 @@ onMounted(reloadAll);
 
 .panel {
   padding: 22px;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 8px 20px rgba(14, 46, 80, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgb(14 46 80 / 10%);
 }
 
 .panel h1 {
@@ -262,8 +264,8 @@ onMounted(reloadAll);
 }
 
 .muted {
-  color: #5a7594;
   font-size: 14px;
+  color: #5a7594;
 }
 
 .toolbar {
@@ -283,31 +285,31 @@ onMounted(reloadAll);
 
 .toolbar select {
   padding: 8px 12px;
-  border-radius: 8px;
   border: 1px solid #c9dcef;
+  border-radius: 8px;
 }
 
 button {
-  border: none;
-  border-radius: 10px;
+  padding: 9px 16px;
   font-weight: 700;
   cursor: pointer;
-  padding: 9px 16px;
+  border: none;
+  border-radius: 10px;
 }
 
 button:disabled {
-  opacity: 0.55;
   cursor: not-allowed;
+  opacity: 0.55;
 }
 
 button.primary {
-  background: #0b3d6b;
   color: #fff;
+  background: #0b3d6b;
 }
 
 button.ghost {
-  background: #e9f3ff;
   color: #0b3d6b;
+  background: #e9f3ff;
 }
 
 button.sm {
@@ -330,13 +332,13 @@ button.sm {
 }
 
 .card {
-  border: 1px solid #dfebf8;
-  border-radius: 12px;
-  padding: 14px;
-  background: #f9fcff;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 14px;
+  background: #f9fcff;
+  border: 1px solid #dfebf8;
+  border-radius: 12px;
 }
 
 .card header {
@@ -348,17 +350,17 @@ button.sm {
   display: inline-block;
   align-self: start;
   padding: 3px 8px;
-  border-radius: 999px;
-  background: #deedff;
-  color: #145387;
   font-size: 12px;
   font-weight: 800;
+  color: #145387;
+  background: #deedff;
+  border-radius: 999px;
 }
 
 dl {
-  margin: 0;
   display: grid;
   gap: 6px;
+  margin: 0;
   font-size: 14px;
   color: #45617f;
 }
@@ -383,20 +385,20 @@ dd {
 
 .grid {
   width: 100%;
-  border-collapse: collapse;
   font-size: 14px;
+  border-collapse: collapse;
 }
 
 .grid th,
 .grid td {
-  border-bottom: 1px solid #e4eef8;
   padding: 10px 8px;
   text-align: left;
+  border-bottom: 1px solid #e4eef8;
 }
 
 .grid th {
-  color: #2f4f6c;
   font-weight: 800;
+  color: #2f4f6c;
 }
 
 .nowrap {

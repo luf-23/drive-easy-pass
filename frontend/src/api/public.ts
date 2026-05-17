@@ -9,7 +9,9 @@ export function getCoursePackages() {
   return request<CoursePackage[]>("/public/course-packages");
 }
 
-export function createPublicEnrollmentIntent(payload: PublicEnrollmentIntentPayload) {
+export function createPublicEnrollmentIntent(
+  payload: PublicEnrollmentIntentPayload
+) {
   return request<EnrollmentLead>("/public/enrollment-intents", {
     method: "POST",
     body: JSON.stringify(payload)
