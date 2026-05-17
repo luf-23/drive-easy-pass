@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import AppPagination from "@/components/AppPagination.vue";
 import {
   createAdminRoute,
   deleteAdminRoute,
@@ -17,6 +18,8 @@ const loading = ref(false);
 const saving = ref(false);
 const dialogVisible = ref(false);
 const editingId = ref<number | null>(null);
+const page = ref(1);
+const pageSize = 8;
 
 const form = reactive<RouteForm>({
   path: "",
@@ -33,8 +36,19 @@ const form = reactive<RouteForm>({
 const parentOptions = computed(() =>
   routes.value.filter(item => item.id !== editingId.value)
 );
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(routes.value.length / pageSize))
+);
+const pagedRoutes = computed(() => {
+  const start = (page.value - 1) * pageSize;
+  return routes.value.slice(start, start + pageSize);
+});
 
 onMounted(loadRoutes);
+
+watch(totalPages, value => {
+  if (page.value > value) page.value = value;
+});
 
 async function loadRoutes() {
   loading.value = true;
@@ -140,11 +154,14 @@ function parentTitle(parentId: number | null) {
   if (parentId == null) return "无";
   return routes.value.find(item => item.id === parentId)?.title ?? `#${parentId}`;
 }
+function goPage(value: number) {
+  page.value = Math.min(Math.max(value, 1), totalPages.value);
+}
 </script>
 
 <template>
   <div class="system-manage-page">
-    <el-card shadow="never">
+    <el-card class="management-card" shadow="never">
       <template #header>
         <div class="card-header">
           <div>
@@ -158,7 +175,7 @@ function parentTitle(parentId: number | null) {
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="routes" row-key="id" border>
+      <el-table v-loading="loading" :data="pagedRoutes" row-key="id" border height="100%">
         <el-table-column prop="title" label="菜单标题" min-width="150" />
         <el-table-column prop="path" label="路径" min-width="220" />
         <el-table-column prop="name" label="路由名" min-width="160" />
@@ -187,14 +204,11 @@ function parentTitle(parentId: number | null) {
           </template>
         </el-table-column>
       </el-table>
+
+      <AppPagination v-if="routes.length > pageSize" :page="page" :total-pages="totalPages" @change="goPage" />
     </el-card>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="editingId ? '编辑路由' : '新增路由'"
-      width="640px"
-      @closed="resetForm"
-    >
+    <el-dialog v-model="dialogVisible" :title="editingId ? '编辑路由' : '新增路由'" width="640px" @closed="resetForm">
       <el-form :model="form" label-width="92px">
         <el-form-item label="路径" required>
           <el-input v-model="form.path" placeholder="/operation/system/routes" />
@@ -207,12 +221,7 @@ function parentTitle(parentId: number | null) {
         </el-form-item>
         <el-form-item label="父级">
           <el-select v-model="form.parentId" clearable placeholder="无父级">
-            <el-option
-              v-for="item in parentOptions"
-              :key="item.id"
-              :label="item.title"
-              :value="item.id"
-            />
+            <el-option v-for="item in parentOptions" :key="item.id" :label="item.title" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="重定向">
@@ -228,11 +237,7 @@ function parentTitle(parentId: number | null) {
           <el-input-number v-model="form.rankNo" :min="0" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch
-            v-model="form.enabled"
-            active-text="启用"
-            inactive-text="停用"
-          />
+          <el-switch v-model="form.enabled" active-text="启用" inactive-text="停用" />
         </el-form-item>
       </el-form>
 
@@ -248,7 +253,31 @@ function parentTitle(parentId: number | null) {
 
 <style scoped>
 .system-manage-page {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.management-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:deep(.management-card > .el-card__body) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:deep(.el-table) {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .card-header {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import AppPagination from "@/components/AppPagination.vue";
 import {
   createRole,
   deleteRole,
@@ -21,6 +22,8 @@ const loading = ref(false);
 const saving = ref(false);
 const dialogVisible = ref(false);
 const editingId = ref<number | null>(null);
+const page = ref(1);
+const pageSize = 8;
 
 const form = reactive<RolePayload>({
   code: "",
@@ -32,8 +35,19 @@ const form = reactive<RolePayload>({
 
 const enabledRoutes = computed(() => routes.value.filter(item => item.enabled));
 const routeTree = computed(() => buildRouteTree(enabledRoutes.value));
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(roles.value.length / pageSize))
+);
+const pagedRoles = computed(() => {
+  const start = (page.value - 1) * pageSize;
+  return roles.value.slice(start, start + pageSize);
+});
 
 onMounted(loadData);
+
+watch(totalPages, value => {
+  if (page.value > value) page.value = value;
+});
 
 async function loadData() {
   loading.value = true;
@@ -157,11 +171,15 @@ function buildRouteTree(source: AppRoute[]) {
 
   return roots;
 }
+
+function goPage(value: number) {
+  page.value = Math.min(Math.max(value, 1), totalPages.value);
+}
 </script>
 
 <template>
   <div class="system-manage-page">
-    <el-card shadow="never">
+    <el-card class="management-card" shadow="never">
       <template #header>
         <div class="card-header">
           <div>
@@ -175,7 +193,7 @@ function buildRouteTree(source: AppRoute[]) {
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="roles" row-key="id" border>
+      <el-table v-loading="loading" :data="pagedRoles" row-key="id" border height="100%">
         <el-table-column prop="name" label="角色名称" min-width="140" />
         <el-table-column prop="code" label="角色编码" min-width="130" />
         <el-table-column prop="description" label="描述" min-width="180">
@@ -206,14 +224,11 @@ function buildRouteTree(source: AppRoute[]) {
           </template>
         </el-table-column>
       </el-table>
+
+      <AppPagination v-if="roles.length > pageSize" :page="page" :total-pages="totalPages" @change="goPage" />
     </el-card>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="editingId ? '编辑角色' : '新增角色'"
-      width="680px"
-      @closed="resetForm"
-    >
+    <el-dialog v-model="dialogVisible" :title="editingId ? '编辑角色' : '新增角色'" width="680px" @closed="resetForm">
       <el-form :model="form" label-width="92px">
         <el-form-item label="角色编码" required>
           <el-input v-model="form.code" placeholder="admin" />
@@ -222,29 +237,14 @@ function buildRouteTree(source: AppRoute[]) {
           <el-input v-model="form.name" placeholder="管理员" />
         </el-form-item>
         <el-form-item label="描述">
-          <el-input
-            v-model="form.description"
-            type="textarea"
-            :rows="3"
-            placeholder="角色职责说明"
-          />
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="角色职责说明" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch
-            v-model="form.enabled"
-            active-text="启用"
-            inactive-text="停用"
-          />
+          <el-switch v-model="form.enabled" active-text="启用" inactive-text="停用" />
         </el-form-item>
         <el-form-item label="访问路由">
-          <el-tree
-            v-model:checked-keys="form.routeIds"
-            :data="routeTree"
-            node-key="id"
-            show-checkbox
-            default-expand-all
-            :props="{ label: 'title', children: 'children' }"
-          />
+          <el-tree v-model:checked-keys="form.routeIds" :data="routeTree" node-key="id" show-checkbox default-expand-all
+            :props="{ label: 'title', children: 'children' }" />
         </el-form-item>
       </el-form>
 
@@ -260,7 +260,31 @@ function buildRouteTree(source: AppRoute[]) {
 
 <style scoped>
 .system-manage-page {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.management-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:deep(.management-card > .el-card__body) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:deep(.el-table) {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .card-header {
