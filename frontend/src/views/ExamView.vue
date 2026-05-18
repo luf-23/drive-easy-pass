@@ -2,20 +2,36 @@
 import { computed, onMounted, ref } from "vue";
 import { request } from "../services/api";
 import type { ExamResult, OptionKey, Question } from "../types";
+import {
+  formatAnswer,
+  isAnswerCorrect,
+  isMultiAnswer,
+  normalizeAnswer,
+  toggleAnswer
+} from "../utils/answer";
+import {
+  isJudgmentQuestion,
+  judgmentIcon,
+  judgmentVariant,
+  optionKeysFor,
+  optionText
+} from "../utils/question";
 
 const examQuestions = ref<Question[]>([]);
-const examAnswers = ref<Record<number, OptionKey>>({});
+const examAnswers = ref<Record<number, string>>({});
+const examLocked = ref<Record<number, boolean>>({});
 const examResult = ref<ExamResult | null>(null);
 const loading = ref(false);
 const error = ref("");
-const optionKeys: OptionKey[] = ["A", "B", "C", "D"];
 const examCount = 20;
 const questionScore = 5;
 const currentExamType = ref(
   localStorage.getItem("reservedExamType") || "科目一"
 );
 
-const answeredCount = computed(() => Object.keys(examAnswers.value).length);
+const answeredCount = computed(
+  () => Object.values(examLocked.value).filter(Boolean).length
+);
 const examProgress = computed(
   () => `${answeredCount.value} / ${examQuestions.value.length}`
 );
@@ -28,8 +44,12 @@ function switchExamType(type: string) {
   startExam();
 }
 
-function optionText(question: Question, key: OptionKey) {
-  return question[`option${key}` as keyof Question] as string;
+function isMulti(question: Question) {
+  return isMultiAnswer(question.answer);
+}
+
+function isLocked(questionId: number) {
+  return !!examLocked.value[questionId];
 }
 
 async function startExam() {
@@ -42,6 +62,7 @@ async function startExam() {
       : `/questions/random?count=${examCount}`;
     examQuestions.value = await request<Question[]>(url);
     examAnswers.value = {};
+    examLocked.value = {};
     examResult.value = null;
   } catch (err) {
     error.value = err instanceof Error ? err.message : "试卷加载失败";
@@ -50,17 +71,40 @@ async function startExam() {
   }
 }
 
-function chooseAnswer(questionId: number, answer: OptionKey) {
-  if (examAnswers.value[questionId]) return;
-  examAnswers.value = { ...examAnswers.value, [questionId]: answer };
+function chooseAnswer(question: Question, answer: OptionKey) {
+  if (isLocked(question.id)) return;
+
+  if (isMulti(question)) {
+    const current = examAnswers.value[question.id] ?? "";
+    examAnswers.value = {
+      ...examAnswers.value,
+      [question.id]: toggleAnswer(current, answer)
+    };
+    return;
+  }
+
+  examAnswers.value = { ...examAnswers.value, [question.id]: answer };
+  examLocked.value = { ...examLocked.value, [question.id]: true };
+}
+
+function confirmMultiAnswer(question: Question) {
+  if (!examAnswers.value[question.id]) return;
+  examLocked.value = { ...examLocked.value, [question.id]: true };
 }
 
 function optionState(question: Question, key: OptionKey) {
-  const selected = examAnswers.value[question.id];
+  const selected = normalizeAnswer(examAnswers.value[question.id] ?? "");
+  const expected = normalizeAnswer(question.answer);
+  const locked = isLocked(question.id);
+  const variant = judgmentVariant(question, key);
+
   return {
-    selected: selected === key,
-    correct: !!selected && question.answer === key,
-    wrong: selected === key && selected !== question.answer
+    selected: selected.includes(key),
+    correct: locked && expected.includes(key),
+    wrong: locked && selected.includes(key) && !expected.includes(key),
+    "judgment-option": isJudgmentQuestion(question),
+    "judgment-option--true": variant === "true",
+    "judgment-option--false": variant === "false"
   };
 }
 
@@ -126,32 +170,58 @@ async function submitExam() {
             :key="question.id"
             class="exam-item"
           >
-            <h3>{{ index + 1 }}. {{ question.content }}</h3>
-            <div class="compact-options">
+            <h3>
+              {{ index + 1 }}. {{ question.content }}
+              <span v-if="isJudgmentQuestion(question)" class="pill">判断</span>
+              <span v-else-if="isMulti(question)" class="pill">多选</span>
+            </h3>
+            <div
+              class="compact-options"
+              :class="{ 'judgment-options': isJudgmentQuestion(question) }"
+            >
               <button
-                v-for="key in optionKeys"
+                v-for="key in optionKeysFor(question)"
                 :key="key"
                 :class="optionState(question, key)"
-                :disabled="!!examAnswers[question.id]"
-                @click="chooseAnswer(question.id, key)"
+                :disabled="isLocked(question.id)"
+                @click="chooseAnswer(question, key)"
               >
-                <b>{{ key }}</b>
-                <span>{{ optionText(question, key) }}</span>
+                <span
+                  v-if="isJudgmentQuestion(question)"
+                  class="judgment-icon"
+                  aria-hidden="true"
+                >{{ judgmentIcon(question, key) }}</span>
+                <b v-else>{{ key }}</b>
+                <span
+                  :class="{
+                    'judgment-label': isJudgmentQuestion(question)
+                  }"
+                >
+                  {{ optionText(question, key) }}
+                </span>
               </button>
             </div>
-            <div v-if="examAnswers[question.id]" class="exam-feedback">
+            <div
+              v-if="isMulti(question) && !isLocked(question.id) && examAnswers[question.id]"
+              class="exam-feedback"
+            >
+              <button class="ghost" @click="confirmMultiAnswer(question)">
+                确认本题答案
+              </button>
+            </div>
+            <div v-if="isLocked(question.id)" class="exam-feedback">
               <strong>
                 {{
-                  examAnswers[question.id] === question.answer
+                  isAnswerCorrect(examAnswers[question.id] ?? "", question.answer)
                     ? "回答正确"
                     : "回答错误"
                 }}
               </strong>
-              <span
-                >正确答案：{{ question.answer }}。{{
+              <span>
+                正确答案：{{ formatAnswer(question.answer) }}。{{
                   question.explanation
-                }}</span
-              >
+                }}
+              </span>
             </div>
           </article>
         </div>

@@ -151,4 +151,23 @@ public interface QuestionMapper {
 
     @Insert("ALTER TABLE questions ADD COLUMN exam_type VARCHAR(20) NOT NULL DEFAULT '科目一'")
     int addExamTypeColumn();
+
+    @Insert("""
+            INSERT IGNORE INTO questions (
+              id, content, option_a, option_b, option_c, option_d, exam_type, answer, explanation
+            ) VALUES (
+              #{id}, #{content}, #{optionA}, #{optionB}, #{optionC}, #{optionD}, #{examType}, #{answer}, #{explanation}
+            )
+            """)
+    int insertIgnore(
+            @Param("id") Long id,
+            @Param("content") String content,
+            @Param("optionA") String optionA,
+            @Param("optionB") String optionB,
+            @Param("optionC") String optionC,
+            @Param("optionD") String optionD,
+            @Param("examType") String examType,
+            @Param("answer") String answer,
+            @Param("explanation") String explanation
+    );
 }

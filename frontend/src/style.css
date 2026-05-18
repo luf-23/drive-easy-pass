@@ -474,6 +474,12 @@ p {
   scrollbar-color: #9fbaaa #edf4e8;
 }
 
+.practice-panel .option-list.judgment-options {
+  flex: 0 0 auto;
+  overflow: visible;
+  padding-right: 0;
+}
+
 .practice-panel .option-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -606,6 +612,75 @@ p {
 }
 
 .compact-options button.wrong b {
+  background: #ca4d42;
+}
+
+/* 判断题：双栏紧凑，不撑满练习区高度 */
+.option-list.judgment-options,
+.compact-options.judgment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 400px;
+  width: 100%;
+  margin-inline: auto;
+  align-content: start;
+}
+
+.option.judgment-option,
+.compact-options.judgment-options button {
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 0;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.option.judgment-option .judgment-icon,
+.compact-options.judgment-options .judgment-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: #4f7665;
+}
+
+.option.judgment-option.judgment-option--true .judgment-icon,
+.compact-options.judgment-options .judgment-option--true .judgment-icon {
+  background: #3d8b62;
+}
+
+.option.judgment-option.judgment-option--false .judgment-icon,
+.compact-options.judgment-options .judgment-option--false .judgment-icon {
+  background: #9a6b5c;
+}
+
+.option.judgment-option .judgment-label,
+.compact-options.judgment-options .judgment-label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.option.judgment-option.selected,
+.compact-options.judgment-options button.selected {
+  box-shadow: 0 0 0 2px rgba(217, 137, 61, 0.35);
+}
+
+.option.judgment-option.correct .judgment-icon,
+.compact-options.judgment-options button.correct .judgment-icon {
+  background: #2f8f5b;
+}
+
+.option.judgment-option.wrong .judgment-icon,
+.compact-options.judgment-options button.wrong .judgment-icon {
   background: #ca4d42;
 }
 
@@ -1085,9 +1160,13 @@ p {
     padding-right: 0;
   }
 
+  .compact-options:not(.judgment-options) {
+    grid-template-columns: 1fr;
+  }
+
   .home-grid,
   .exam-summary,
-  .compact-options,
+  .compact-options:not(.judgment-options),
   .system-form,
   .role-form,
   .route-checks,

@@ -4,6 +4,7 @@ import AppPagination from "../components/AppPagination.vue";
 import { request } from "../services/api";
 import { useAuth } from "../stores/auth";
 import type { WrongQuestion } from "../types";
+import { formatAnswer } from "../utils/answer";
 
 const { user } = useAuth();
 const wrongQuestions = ref<WrongQuestion[]>([]);
@@ -118,7 +119,7 @@ function goPage(value: number) {
             <div>
               <h3>{{ item.question.content }}</h3>
               <p>
-                正确答案：{{ item.question.answer }}。{{
+                正确答案：{{ formatAnswer(item.question.answer) }}。{{
                   item.question.explanation
                 }}
               </p>
