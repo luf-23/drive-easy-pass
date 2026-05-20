@@ -1,18 +1,36 @@
-import { http } from "@/utils/http";
-import type { BaseResult } from "./userManagement";
+import { request } from "@/services/api";
 
-export const getStatisticsOverview = () => {
-  return http.request<BaseResult>("get", "/api/admin/statistics/overview");
-};
+export interface StatisticsOverview {
+  totalUsers: number;
+  activeUsers: number;
+  totalEnrollments: number;
+  monthlyEnrollments: number;
+  totalExams?: number;
+}
 
-export const getEnrollmentTrend = (params?: object) => {
-  return http.request<BaseResult>(
-    "get",
-    "/api/admin/statistics/enrollment-trend",
-    { params }
-  );
-};
+export interface EnrollmentTrendRow {
+  month: string;
+  count: number;
+}
 
-export const getPassRate = () => {
-  return http.request<BaseResult>("get", "/api/admin/statistics/pass-rate");
-};
+export interface PassRateStats {
+  passedCount: number;
+  totalCount: number;
+  rate: number;
+  subject1?: number;
+  subject2?: number;
+  subject3?: number;
+  subject4?: number;
+}
+
+export function getStatisticsOverview() {
+  return request<StatisticsOverview>("/admin/statistics/overview");
+}
+
+export function getEnrollmentTrend() {
+  return request<EnrollmentTrendRow[]>("/admin/statistics/enrollment-trend");
+}
+
+export function getPassRate() {
+  return request<PassRateStats>("/admin/statistics/pass-rate");
+}

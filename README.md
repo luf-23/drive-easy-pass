@@ -27,7 +27,7 @@ npm install
         spring.datasource.password=your_password
         ```
 
-      - 执行 backend/resources/SQL 文件中的 SQL 语句来创建数据库表。
+      - 执行 backend/src/main/resources/SQL 目录下按编号排序的 SQL 脚本（含 `07_data_mock.sql` 运营演示数据）。
 
    2. - 安装 Docker ，可以从 [Docker 官网](https://www.docker.com/get-started) 下载并安装。
       - 在项目根目录创建 `.env` 文件（可从 `.env.example` 复制），并配置：

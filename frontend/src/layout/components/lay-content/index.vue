@@ -191,7 +191,8 @@ const transitionMain = defineComponent({
   height: calc(100% - 32px);
   min-height: 0;
   margin: 16px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .content-frame {
@@ -212,6 +213,7 @@ const transitionMain = defineComponent({
 }
 
 .page-wrapper {
-  height: 100%;
+  min-height: 100%;
+  height: auto;
 }
 </style>

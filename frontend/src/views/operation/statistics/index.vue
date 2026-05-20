@@ -1,65 +1,96 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
-  getStatisticsOverview,
   getEnrollmentTrend,
-  getPassRate
+  getPassRate,
+  getStatisticsOverview,
+  type EnrollmentTrendRow,
+  type PassRateStats,
+  type StatisticsOverview
 } from "@/api/statistics";
 
 defineOptions({
   name: "StatisticsCenter"
 });
 
-const overview = ref({
+const loading = ref(false);
+const error = ref("");
+
+const overview = ref<StatisticsOverview>({
   totalUsers: 0,
   activeUsers: 0,
   totalEnrollments: 0,
-  monthlyEnrollments: 0
+  monthlyEnrollments: 0,
+  totalExams: 0
 });
 
-const trendData = ref([]);
-const passRateData = ref<any>({});
+const trendData = ref<EnrollmentTrendRow[]>([]);
+const passRateData = ref<PassRateStats>({
+  passedCount: 0,
+  totalCount: 0,
+  rate: 0
+});
 
-const fetchOverview = async () => {
-  try {
-    const res = await getStatisticsOverview();
-    if (res?.success) {
-      overview.value = res.data;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
+const hasSubjectPassRate = computed(() =>
+  ["subject1", "subject2", "subject3", "subject4"].some(
+    key => passRateData.value[key as keyof PassRateStats] !== undefined
+  )
+);
 
-const fetchTrend = async () => {
-  try {
-    const res = await getEnrollmentTrend({ lastMonths: 6 });
-    if (res?.success && Array.isArray(res.data)) {
-      trendData.value = res.data;
-    } else if (res?.success && res.data?.trends) {
-      trendData.value = res.data.trends;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const fetchPassRate = async () => {
-  try {
-    const res = await getPassRate();
-    if (res?.success) {
-      passRateData.value = res.data;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
+const passRateSummary = computed(() => {
+  const { passedCount, totalCount, rate } = passRateData.value;
+  if (!totalCount) return "暂无已完成考试成绩";
+  return `共 ${totalCount} 场，通过 ${passedCount} 场，总通过率 ${(rate * 100).toFixed(1)}%`;
+});
 
 onMounted(() => {
-  fetchOverview();
-  fetchTrend();
-  fetchPassRate();
+  loadAll();
 });
+
+async function loadAll() {
+  loading.value = true;
+  error.value = "";
+  try {
+    const [overviewRes, trendRes, passRes] = await Promise.all([
+      getStatisticsOverview(),
+      getEnrollmentTrend(),
+      getPassRate()
+    ]);
+    overview.value = {
+      totalUsers: Number(overviewRes?.totalUsers ?? 0),
+      activeUsers: Number(overviewRes?.activeUsers ?? 0),
+      totalEnrollments: Number(overviewRes?.totalEnrollments ?? 0),
+      monthlyEnrollments: Number(overviewRes?.monthlyEnrollments ?? 0),
+      totalExams: Number(overviewRes?.totalExams ?? 0)
+    };
+    trendData.value = normalizeTrend(trendRes);
+    passRateData.value = {
+      passedCount: Number(passRes?.passedCount ?? 0),
+      totalCount: Number(passRes?.totalCount ?? 0),
+      rate: Number(passRes?.rate ?? 0),
+      subject1: passRes?.subject1,
+      subject2: passRes?.subject2,
+      subject3: passRes?.subject3,
+      subject4: passRes?.subject4
+    };
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "统计数据加载失败";
+  } finally {
+    loading.value = false;
+  }
+}
+
+function normalizeTrend(raw: unknown): EnrollmentTrendRow[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(row => {
+    const item = row as Record<string, unknown>;
+    const month = String(item.month ?? item.date ?? "");
+    return {
+      month,
+      count: Number(item.count ?? 0)
+    };
+  });
+}
 
 const customColors = [
   { color: "#f56c6c", percentage: 20 },
@@ -72,44 +103,64 @@ const customColors = [
 
 <template>
   <div class="statistics-center main">
+    <div class="page-head">
+      <h1>统计分析</h1>
+      <el-button :loading="loading" @click="loadAll">刷新</el-button>
+    </div>
+
+    <el-alert v-if="error" :title="error" type="error" show-icon class="mb-4" />
+
     <el-row :gutter="16" class="mb-4">
       <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" v-loading="loading">
           <template #header>
             <div class="font-bold text-gray-700">总用户数</div>
           </template>
           <div class="text-3xl font-bold text-blue-500">
-            {{ overview.totalUsers || 0 }}
+            {{ overview.totalUsers }}
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" v-loading="loading">
           <template #header>
-            <div class="font-bold text-gray-700">活跃用户数</div>
+            <div class="font-bold text-gray-700">启用用户数</div>
           </template>
           <div class="text-3xl font-bold text-green-500">
-            {{ overview.activeUsers || 0 }}
+            {{ overview.activeUsers }}
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" v-loading="loading">
           <template #header>
-            <div class="font-bold text-gray-700">总报名数</div>
+            <div class="font-bold text-gray-700">招生线索总数</div>
           </template>
           <div class="text-3xl font-bold text-purple-500">
-            {{ overview.totalEnrollments || 0 }}
+            {{ overview.totalEnrollments }}
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" v-loading="loading">
           <template #header>
-            <div class="font-bold text-gray-700">本月新增报名</div>
+            <div class="font-bold text-gray-700">本月新增线索</div>
           </template>
           <div class="text-3xl font-bold text-orange-500">
-            {{ overview.monthlyEnrollments || 0 }}
+            {{ overview.monthlyEnrollments }}
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="16" class="mb-4">
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover" v-loading="loading">
+          <template #header>
+            <div class="font-bold text-gray-700">考试预约总数</div>
+          </template>
+          <div class="text-3xl font-bold text-teal-600">
+            {{ overview.totalExams ?? 0 }}
           </div>
         </el-card>
       </el-col>
@@ -117,27 +168,36 @@ const customColors = [
 
     <el-row :gutter="16">
       <el-col :xs="24" :md="12">
-        <el-card shadow="hover">
+        <el-card shadow="hover" v-loading="loading">
           <template #header>
-            <span class="font-bold text-gray-700">报名趋势 (近6个月)</span>
+            <span class="font-bold text-gray-700">报名趋势（近 6 个月）</span>
           </template>
-          <el-table :data="trendData" style="width: 100%" height="250">
+          <el-table
+            v-if="trendData.length"
+            :data="trendData"
+            style="width: 100%"
+            height="250"
+          >
             <el-table-column prop="month" label="月份" />
-            <el-table-column prop="count" label="报名人数" />
+            <el-table-column prop="count" label="线索数量" />
           </el-table>
+          <el-empty v-else description="暂无趋势数据" />
         </el-card>
       </el-col>
       <el-col :xs="24" :md="12">
-        <el-card shadow="hover">
+        <el-card shadow="hover" v-loading="loading">
           <template #header>
-            <span class="font-bold text-gray-700">考试通过率</span>
+            <span class="font-bold text-gray-700">考试通过率（按科目）</span>
           </template>
-          <div v-if="passRateData.subject1 !== undefined" class="p-4 space-y-4">
+          <p v-if="passRateData.totalCount" class="pass-summary">
+            {{ passRateSummary }}
+          </p>
+          <div v-if="hasSubjectPassRate" class="p-4 space-y-4">
             <div class="flex items-center">
               <span class="inline-block w-20 text-gray-600">科目一:</span>
               <el-progress
                 class="flex-1"
-                :percentage="passRateData.subject1 || 0"
+                :percentage="passRateData.subject1 ?? 0"
                 :color="customColors"
               />
             </div>
@@ -145,7 +205,7 @@ const customColors = [
               <span class="inline-block w-20 text-gray-600">科目二:</span>
               <el-progress
                 class="flex-1"
-                :percentage="passRateData.subject2 || 0"
+                :percentage="passRateData.subject2 ?? 0"
                 :color="customColors"
               />
             </div>
@@ -153,7 +213,7 @@ const customColors = [
               <span class="inline-block w-20 text-gray-600">科目三:</span>
               <el-progress
                 class="flex-1"
-                :percentage="passRateData.subject3 || 0"
+                :percentage="passRateData.subject3 ?? 0"
                 :color="customColors"
               />
             </div>
@@ -161,14 +221,40 @@ const customColors = [
               <span class="inline-block w-20 text-gray-600">科目四:</span>
               <el-progress
                 class="flex-1"
-                :percentage="passRateData.subject4 || 0"
+                :percentage="passRateData.subject4 ?? 0"
                 :color="customColors"
               />
             </div>
           </div>
-          <el-empty v-else description="暂无通过率数据" />
+          <el-empty v-else description="暂无通过率数据（需有已录入成绩的考试）" />
         </el-card>
       </el-col>
     </el-row>
   </div>
 </template>
+
+<style scoped>
+.statistics-center {
+  padding: 16px 20px 24px;
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: 22px;
+  color: #14251e;
+}
+
+.pass-summary {
+  margin: 0 0 12px;
+  padding: 0 16px;
+  font-size: 13px;
+  color: #64736c;
+}
+</style>
