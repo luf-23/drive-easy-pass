@@ -39,6 +39,96 @@ export default {
       }
     },
     {
+      path: "/operation/enrollment/packages",
+      name: "CoursePackageManagement",
+      component: () => import("@/views/operation/enrollment/packages.vue"),
+      meta: {
+        title: "课程套餐",
+        roles: ["admin", "sales", "market", "coach"]
+      }
+    },
+    {
+      path: "/operation/students/list",
+      name: "StudentManagement",
+      component: () => import("@/views/operation/StudentManagementView.vue"),
+      meta: {
+        title: "学员管理",
+        roles: ["admin", "sales", "market", "coach"]
+      }
+    },
+    {
+      path: "/operation/students/progress",
+      name: "StudentProgress",
+      component: () => import("@/views/operation/students/progress.vue"),
+      meta: {
+        title: "学员考试进度",
+        roles: ["admin", "sales", "market", "coach"]
+      }
+    },
+    {
+      path: "/operation/coaches",
+      name: "CoachManagement",
+      component: () => import("@/views/operation/coaches.vue"),
+      meta: {
+        title: "教练管理",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/questions/subject1",
+      name: "SubjectOneQuestions",
+      component: () => import("@/views/operation/questions/subject1.vue"),
+      meta: {
+        title: "科目一题库",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/questions/subject4",
+      name: "SubjectFourQuestions",
+      component: () => import("@/views/operation/questions/subject4.vue"),
+      meta: {
+        title: "科目四题库",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/exams/rooms",
+      name: "ExamRoomManagement",
+      component: () => import("@/views/operation/exams/rooms.vue"),
+      meta: {
+        title: "考场管理",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/exams/schedules",
+      name: "ExamScheduleManagement",
+      component: () => import("@/views/operation/exams/schedules.vue"),
+      meta: {
+        title: "考试场次",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/exams/registrations",
+      name: "ExamRegistrations",
+      component: () => import("@/views/operation/exams/registrations.vue"),
+      meta: {
+        title: "预约审核",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
+      path: "/operation/exams/results",
+      name: "ExamResults",
+      component: () => import("@/views/operation/exams/results.vue"),
+      meta: {
+        title: "成绩管理",
+        roles: ["admin", "coach"]
+      }
+    },
+    {
       path: "/operation/teaching",
       name: "Teaching",
       component: () => import("@/views/welcome/index.vue"),

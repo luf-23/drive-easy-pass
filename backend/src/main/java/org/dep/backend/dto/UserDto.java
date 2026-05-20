@@ -18,6 +18,6 @@ public class UserDto {
     ) {}
 
     public record StatusRequest(
-            Integer status
+            Object status
     ) {}
 }

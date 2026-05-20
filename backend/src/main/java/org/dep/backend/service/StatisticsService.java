@@ -35,15 +35,15 @@ public class StatisticsService {
     public Map<String, Object> getPassRate() {
         Map<String, Object> rawData = statisticsMapper.getPassRate();
         Map<String, Object> result = new HashMap<>();
-        if (rawData == null || rawData.get("totalCount") == null) {
+        if (rawData == null) {
             result.put("passedCount", 0);
             result.put("totalCount", 0);
             result.put("rate", 0.0);
             return result;
         }
 
-        long passedCount = ((Number) rawData.get("passedCount")).longValue();
-        long totalCount = ((Number) rawData.get("totalCount")).longValue();
+        long passedCount = numberValue(rawData, "passedCount");
+        long totalCount = numberValue(rawData, "totalCount");
         double rate = totalCount > 0 ? (double) passedCount / totalCount : 0.0;
 
         result.put("passedCount", passedCount);
@@ -51,5 +51,13 @@ public class StatisticsService {
         result.put("rate", rate);
 
         return result;
+    }
+
+    private long numberValue(Map<String, Object> data, String key) {
+        Object value = data.get(key);
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        return 0L;
     }
 }

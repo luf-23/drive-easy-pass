@@ -27,7 +27,7 @@ export const deleteUser = (id: number) => {
 };
 
 // 更新用户状态 (启用/禁用)
-export const updateUserStatus = (id: number, status: string | number) => {
+export const updateUserStatus = (id: number, status: number) => {
   return http.request<BaseResult>("put", `/api/admin/users/${id}/status`, {
     data: { status }
   });

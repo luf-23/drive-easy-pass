@@ -25,7 +25,7 @@ public interface StatisticsMapper {
     List<Map<String, Object>> getEnrollmentTrend();
 
     @Select("SELECT " +
-            "  SUM(CASE WHEN passed = 'Y' THEN 1 ELSE 0 END) as passedCount, " +
+            "  COALESCE(SUM(CASE WHEN passed = 'Y' THEN 1 ELSE 0 END), 0) as passedCount, " +
             "  COUNT(*) as totalCount " +
             "FROM exam_registrations " +
             "WHERE passed IS NOT NULL AND status = 'completed'")

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/users")
+@RequestMapping("/admin/users")
 public class UserController {
 
     private final UserService userService;
@@ -19,14 +19,21 @@ public class UserController {
     }
 
     @GetMapping
-    public PageResult<AppUser> listUsers(
+    public Map<String, Object> listUsers(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String role,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return userService.listUsers(username, email, role, page, size);
+        PageResult<AppUser> pageResult = userService.listUsers(username, email, role, page, size);
+        return Map.of(
+                "success", true,
+                "data", Map.of(
+                        "list", pageResult.items(),
+                        "total", pageResult.total()
+                )
+        );
     }
 
     @PostMapping
@@ -69,7 +76,7 @@ public class UserController {
 
     @PutMapping("/{id}/status")
     public Map<String, Object> updateStatus(@PathVariable Long id, @RequestBody UserDto.StatusRequest request) {
-        userService.updateStatus(id, request.status());
+        userService.updateStatus(id, normalizeStatus(request.status()));
         return Map.of("success", true);
     }
 
@@ -77,5 +84,24 @@ public class UserController {
     public Map<String, Object> resetPassword(@PathVariable Long id) {
         userService.resetPassword(id);
         return Map.of("success", true);
+    }
+
+    private Integer normalizeStatus(Object status) {
+        if (status instanceof Number number) {
+            int value = number.intValue();
+            if (value == 0 || value == 1) {
+                return value;
+            }
+        }
+        if (status instanceof String value) {
+            String normalized = value.trim();
+            if ("1".equals(normalized) || "ENABLED".equalsIgnoreCase(normalized)) {
+                return 1;
+            }
+            if ("0".equals(normalized) || "DISABLED".equalsIgnoreCase(normalized)) {
+                return 0;
+            }
+        }
+        throw new IllegalArgumentException("Invalid user status");
     }
 }

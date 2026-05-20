@@ -6,7 +6,7 @@ export default {
   path: "/",
   name: "Home",
   component: Layout,
-  redirect: getTopMenu()?.path || "/welcome",
+  redirect: () => getTopMenu()?.path || "/welcome",
   meta: {
     icon: "ep/home-filled",
     title: "驾校运营后台",

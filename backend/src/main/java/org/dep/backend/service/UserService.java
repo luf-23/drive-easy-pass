@@ -33,11 +33,14 @@ public class UserService {
             throw new IllegalArgumentException("Username already exists");
         }
         String encodedPassword = passwordHasher.hash(user.passwordHash() != null ? user.passwordHash() : "123456");
+        String nickname = user.nickname() != null && !user.nickname().isBlank()
+                ? user.nickname().trim()
+                : user.username();
         AppUser newUser = new AppUser(
                 null,
                 user.username(),
                 encodedPassword,
-                user.nickname(),
+                nickname,
                 user.role() != null ? user.role() : "student",
                 user.email(),
                 user.status() != null ? user.status() : 1,
