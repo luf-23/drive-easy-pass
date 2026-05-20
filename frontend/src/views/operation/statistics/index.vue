@@ -103,10 +103,10 @@ const customColors = [
 
 <template>
   <div class="statistics-center main">
-    <div class="page-head">
+    <header class="page-head dep-page-header">
       <h1>统计分析</h1>
       <el-button :loading="loading" @click="loadAll">刷新</el-button>
-    </div>
+    </header>
 
     <el-alert v-if="error" :title="error" type="error" show-icon class="mb-4" />
 
@@ -116,7 +116,7 @@ const customColors = [
           <template #header>
             <div class="font-bold text-gray-700">总用户数</div>
           </template>
-          <div class="text-3xl font-bold text-blue-500">
+          <div class="text-2xl font-bold text-blue-500">
             {{ overview.totalUsers }}
           </div>
         </el-card>
@@ -126,7 +126,7 @@ const customColors = [
           <template #header>
             <div class="font-bold text-gray-700">启用用户数</div>
           </template>
-          <div class="text-3xl font-bold text-green-500">
+          <div class="text-2xl font-bold text-green-500">
             {{ overview.activeUsers }}
           </div>
         </el-card>
@@ -136,7 +136,7 @@ const customColors = [
           <template #header>
             <div class="font-bold text-gray-700">招生线索总数</div>
           </template>
-          <div class="text-3xl font-bold text-purple-500">
+          <div class="text-2xl font-bold text-purple-500">
             {{ overview.totalEnrollments }}
           </div>
         </el-card>
@@ -146,7 +146,7 @@ const customColors = [
           <template #header>
             <div class="font-bold text-gray-700">本月新增线索</div>
           </template>
-          <div class="text-3xl font-bold text-orange-500">
+          <div class="text-2xl font-bold text-orange-500">
             {{ overview.monthlyEnrollments }}
           </div>
         </el-card>
@@ -159,7 +159,7 @@ const customColors = [
           <template #header>
             <div class="font-bold text-gray-700">考试预约总数</div>
           </template>
-          <div class="text-3xl font-bold text-teal-600">
+          <div class="text-2xl font-bold text-teal-600">
             {{ overview.totalExams ?? 0 }}
           </div>
         </el-card>
@@ -234,21 +234,21 @@ const customColors = [
 </template>
 
 <style scoped>
-.statistics-center {
-  padding: 16px 20px 24px;
-}
-
 .page-head {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
 .page-head h1 {
   margin: 0;
-  font-size: 22px;
-  color: #14251e;
+}
+
+.statistics-center :deep(.el-row:last-of-type) {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .pass-summary {

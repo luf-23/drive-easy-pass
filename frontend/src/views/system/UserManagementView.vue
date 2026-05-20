@@ -187,7 +187,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="main">
+  <div class="main user-mgmt-page">
     <el-card shadow="never" class="mb-4">
       <el-form :inline="true" :model="searchForm" class="bg-bg_color">
         <el-form-item label="用户名">

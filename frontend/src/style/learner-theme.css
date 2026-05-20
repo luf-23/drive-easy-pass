@@ -1,0 +1,461 @@
+/* 驾考学习端 + 学员登录注册 — 与后台 dep-ui 一致的浅蓝描边风格 */
+
+:root {
+  --learner-bg: #f4f5f7;
+  --learner-surface: #fff;
+  --learner-border: #d9dde3;
+  --learner-border-strong: #1a1a1a;
+  --learner-accent: #b8dcff;
+  --learner-accent-strong: #91caff;
+  --learner-accent-text: #1677ff;
+  --learner-accent-deep: #69b1ff;
+  --learner-muted: #6b7280;
+  --learner-soft: #e6f4ff;
+  --learner-soft-bg: #f0f7ff;
+  --learner-text: #1a1a1a;
+  --learner-success: #52c41a;
+  --learner-danger: #ff4d4f;
+}
+
+/* —— 登录 / 注册 —— */
+.auth-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 24px;
+  overflow: hidden;
+  background: var(--learner-bg);
+}
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgb(0 0 0 / 3%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0 0 0 / 3%) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: min(400px, 100%);
+  padding: 32px 28px 24px;
+  border: 1px solid var(--learner-border-strong);
+  border-radius: 12px;
+  background: var(--learner-surface);
+  box-shadow: none;
+}
+
+.brand-link {
+  color: var(--learner-accent-text);
+}
+
+.auth-card h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--learner-text);
+}
+
+.auth-card p {
+  color: var(--learner-muted);
+}
+
+.auth-page-form label {
+  color: var(--learner-text);
+}
+
+.auth-page-form input {
+  border: 1px solid var(--learner-border);
+  border-radius: 8px;
+  background: var(--learner-surface);
+}
+
+.auth-page-form input:focus {
+  border-color: var(--learner-accent-text);
+  box-shadow: 0 0 0 2px rgb(22 119 255 / 12%);
+}
+
+.auth-page .primary,
+.auth-page-form .primary {
+  min-height: 40px;
+  color: var(--learner-text);
+  background: var(--learner-accent);
+  border: 1px solid var(--learner-border-strong);
+  border-radius: 8px;
+}
+
+.auth-page .primary:hover {
+  background: var(--learner-accent-strong);
+}
+
+.auth-switch {
+  color: var(--learner-accent-text);
+}
+
+.auth-page .message.error {
+  color: var(--learner-danger);
+  background: #fff1f0;
+  border: 1px solid #ffccc7;
+  border-radius: 8px;
+}
+
+/* —— 学习布局：侧栏 + 工作区 —— */
+.app-shell {
+  background: var(--learner-bg);
+}
+
+.app-shell .sidebar {
+  color: var(--learner-text);
+  background: var(--learner-surface);
+  border-right: 1px solid var(--learner-border);
+  box-shadow: none;
+}
+
+.app-shell .brand-block {
+  border-bottom-color: var(--learner-border);
+}
+
+.app-shell .sidebar h1 {
+  font-size: 22px;
+  color: var(--learner-text);
+}
+
+.app-shell .subtle {
+  color: var(--learner-muted);
+}
+
+.app-shell .eyebrow {
+  color: var(--learner-accent-text);
+}
+
+.app-shell .user-panel {
+  border-top-color: var(--learner-border);
+}
+
+.app-shell .user-card span {
+  color: var(--learner-muted);
+}
+
+.app-shell .nav-list a {
+  color: rgb(0 0 0 / 65%);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.app-shell .nav-list a:hover,
+.app-shell .nav-list a.router-link-active {
+  color: var(--learner-accent-text);
+  background: var(--learner-soft);
+  border-color: rgb(22 119 255 / 22%);
+  transform: none;
+}
+
+.app-shell .sidebar-action {
+  color: var(--learner-text);
+  background: var(--learner-accent);
+  border: 1px solid var(--learner-border-strong);
+}
+
+.app-shell .sidebar-action:hover {
+  background: var(--learner-accent-strong);
+}
+
+.app-shell .ghost-link {
+  color: var(--learner-accent-text);
+  background: var(--learner-soft-bg);
+  border: 1px solid var(--learner-border);
+}
+
+.app-shell .workspace {
+  background: var(--learner-bg);
+}
+
+/* —— 首页 / 练习 / 考试 / 错题 —— */
+.app-shell .hero-panel,
+.app-shell .driving-hero {
+  border: 1px solid var(--learner-border);
+  border-radius: 10px;
+  box-shadow: none;
+  background:
+    linear-gradient(
+      100deg,
+      rgb(22 119 255 / 88%) 0%,
+      rgb(105 177 255 / 72%) 55%,
+      rgb(184 220 255 / 85%) 100%
+    ),
+    url("/src/assets/hero.png") center / cover;
+}
+
+.app-shell .hero-panel h2 {
+  font-size: 24px;
+}
+
+.app-shell .hero-panel p {
+  color: rgb(255 255 255 / 92%);
+}
+
+.app-shell .hero-panel .ghost.light {
+  color: var(--learner-text);
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid var(--learner-border-strong);
+}
+
+.app-shell .hero-panel .primary {
+  color: var(--learner-text);
+  background: var(--learner-accent);
+  border: 1px solid var(--learner-border-strong);
+}
+
+.app-shell .hero-panel .primary:hover {
+  background: var(--learner-accent-strong);
+}
+
+.app-shell .panel,
+.app-shell .metric,
+.app-shell .route-card,
+.app-shell .message,
+.app-shell .practice-panel,
+.app-shell .exam-panel,
+.app-shell .wrong-book-panel,
+.app-shell .practice-feedback,
+.app-shell .exam-item,
+.app-shell .wrong-item {
+  border: 1px solid var(--learner-border);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.app-shell .metric strong,
+.app-shell .result-box strong,
+.app-shell .route-card h3,
+.app-shell .exam-summary span,
+.app-shell .message,
+.app-shell .exam-feedback strong,
+.app-shell .section-head h2 {
+  color: var(--learner-accent-text);
+}
+
+.app-shell .route-card span {
+  background: var(--learner-accent-deep);
+}
+
+.app-shell .route-card a {
+  color: var(--learner-accent-text);
+}
+
+.app-shell .pill {
+  color: var(--learner-accent-text);
+  background: var(--learner-soft);
+}
+
+.app-shell .primary {
+  color: var(--learner-text);
+  background: var(--learner-accent);
+  border: 1px solid var(--learner-border-strong);
+}
+
+.app-shell .primary:hover {
+  background: var(--learner-accent-strong);
+}
+
+.app-shell .ghost {
+  color: var(--learner-accent-text);
+  background: var(--learner-soft-bg);
+  border: 1px solid var(--learner-border);
+}
+
+.app-shell .ghost:hover {
+  background: var(--learner-soft);
+}
+
+.app-shell .option,
+.app-shell .compact-options button {
+  border: 1px solid var(--learner-border);
+  border-radius: 8px;
+  background: var(--learner-surface);
+}
+
+.app-shell .option:hover,
+.app-shell .compact-options button:hover {
+  border-color: var(--learner-accent-deep);
+  background: var(--learner-soft-bg);
+}
+
+.app-shell .option b,
+.app-shell .compact-options button b {
+  background: var(--learner-accent-deep);
+}
+
+.app-shell .option.selected,
+.app-shell .compact-options button.selected {
+  border-color: var(--learner-accent-text);
+  background: var(--learner-soft);
+  box-shadow: 0 0 0 1px rgb(22 119 255 / 18%);
+}
+
+.app-shell .option.correct,
+.app-shell .compact-options button.correct {
+  border-color: var(--learner-success);
+  background: #f6ffed;
+}
+
+.app-shell .option.correct b,
+.app-shell .compact-options button.correct b {
+  background: var(--learner-success);
+}
+
+.app-shell .option.judgment-option.selected,
+.app-shell .compact-options.judgment-options button.selected {
+  box-shadow: 0 0 0 2px rgb(22 119 255 / 28%);
+}
+
+.app-shell .option.judgment-option .judgment-icon,
+.app-shell .compact-options.judgment-options .judgment-icon {
+  background: var(--learner-accent-deep);
+}
+
+.app-shell .answer-card,
+.app-shell .result-box,
+.app-shell .empty-state,
+.app-shell .exam-summary span {
+  background: var(--learner-soft-bg);
+}
+
+.app-shell .practice-head,
+.app-shell .exam-fixed-head,
+.app-shell .exam-footer,
+.app-shell .app-pagination {
+  border-color: var(--learner-border);
+}
+
+.app-shell .practice-feedback {
+  border-color: var(--learner-border);
+  background: var(--learner-soft-bg);
+}
+
+.app-shell .exam-feedback {
+  border-left-color: var(--learner-accent-text);
+  background: var(--learner-soft);
+}
+
+.app-shell .exam-type-switch {
+  border-color: var(--learner-border);
+  background: var(--learner-soft-bg);
+}
+
+.app-shell .exam-type-switch button:hover {
+  color: var(--learner-accent-text);
+  background: var(--learner-soft);
+}
+
+.app-shell .exam-type-switch button.active {
+  color: var(--learner-accent-text);
+  border-color: rgb(22 119 255 / 35%);
+  box-shadow: 0 1px 3px rgb(22 119 255 / 12%);
+}
+
+.app-shell .practice-panel .option-list::-webkit-scrollbar-thumb,
+.app-shell .exam-scroll::-webkit-scrollbar-thumb,
+.app-shell .wrong-list-scroll::-webkit-scrollbar-thumb {
+  background: var(--learner-accent-deep);
+}
+
+.app-shell .practice-panel .option-list::-webkit-scrollbar-track,
+.app-shell .exam-scroll::-webkit-scrollbar-track,
+.app-shell .wrong-list-scroll::-webkit-scrollbar-track {
+  background: var(--learner-soft-bg);
+}
+
+.app-shell .app-pagination {
+  --el-pagination-bg-color: var(--learner-soft-bg);
+  --el-pagination-button-color: var(--learner-accent-text);
+  --el-pagination-hover-color: var(--learner-accent-text);
+  --el-color-primary: var(--learner-accent-text);
+}
+
+.app-shell .app-pagination .el-pager li.is-active {
+  background: var(--learner-accent-text);
+}
+
+/* —— 驾考业务页：挂在后台 Layout 下（/home、/practice 等），无 .app-shell —— */
+.page-wrapper .drive-page,
+.drive-page {
+  gap: 12px;
+}
+
+.page-wrapper .drive-page .home-dashboard,
+.drive-page .home-dashboard {
+  gap: 12px;
+}
+
+.page-wrapper .drive-page .hero-panel,
+.page-wrapper .drive-page .driving-hero,
+.drive-page .hero-panel,
+.drive-page .driving-hero {
+  border: 1px solid var(--learner-border);
+  border-radius: 10px;
+  box-shadow: none;
+  background:
+    linear-gradient(
+      100deg,
+      rgb(22 119 255 / 88%) 0%,
+      rgb(105 177 255 / 72%) 55%,
+      rgb(184 220 255 / 85%) 100%
+    ),
+    url("/src/assets/hero.png") center / cover;
+}
+
+.drive-page .hero-panel h2 {
+  font-size: 24px;
+}
+
+.drive-page .hero-panel .eyebrow {
+  color: rgb(255 255 255 / 88%);
+}
+
+.drive-page .hero-panel p {
+  color: rgb(255 255 255 / 92%);
+}
+
+.drive-page .hero-actions .primary {
+  color: var(--learner-text);
+  background: var(--learner-accent);
+  border: 1px solid var(--learner-border-strong);
+}
+
+.drive-page .hero-actions .primary:hover {
+  background: var(--learner-accent-strong);
+}
+
+.drive-page .hero-actions .ghost.light {
+  color: var(--learner-text);
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid var(--learner-border-strong);
+}
+
+.drive-page .metric,
+.drive-page .route-card,
+.drive-page .message {
+  border: 1px solid var(--learner-border);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.drive-page .metric strong {
+  font-size: 22px;
+  color: var(--learner-accent-text);
+}
+
+.drive-page .route-card span {
+  background: var(--learner-accent-deep);
+}
+
+.drive-page .route-card h3 {
+  color: var(--learner-accent-text);
+}
+
+.drive-page .route-card a {
+  color: var(--learner-accent-text);
+  font-weight: 700;
+}

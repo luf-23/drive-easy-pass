@@ -1,0 +1,363 @@
+/* 驾考一点通 — 参考学习管理平台的轻量描边风格 */
+
+:root {
+  --dep-bg: #f4f5f7;
+  --dep-bg-grid: linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 48%,
+      rgb(0 0 0 / 2%) 48%,
+      rgb(0 0 0 / 2%) 50%,
+      transparent 50%,
+      transparent 100%
+    ),
+    #f4f5f7;
+  --dep-surface: #fff;
+  --dep-border: #1a1a1a;
+  --dep-border-soft: #d9dde3;
+  --dep-text: #1a1a1a;
+  --dep-text-muted: #6b7280;
+  --dep-accent: #b8dcff;
+  --dep-accent-strong: #7ec8ff;
+  --dep-accent-text: #1677ff;
+  --dep-radius: 10px;
+  --dep-page-pad: 14px 18px;
+  --dep-title-size: 18px;
+  --dep-metric-size: 22px;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* 禁止浏览器整页滚动，滚动交给主内容区 .page-wrapper */
+body {
+  overflow: hidden;
+}
+
+/* 主内容区背景 */
+.main-container {
+  background: var(--dep-bg-grid) !important;
+}
+
+/* 顶栏：虚线分隔，去掉重阴影 */
+.navbar {
+  box-shadow: none !important;
+  border-bottom: 1px dashed rgb(0 0 0 / 12%) !important;
+}
+
+/* 侧栏激活项：浅蓝底 + 深色文字（参考图） */
+html[data-theme="light"] {
+  --pure-theme-menu-active-before: #1677ff;
+  --pure-border-color: rgb(0 0 0 / 10%);
+
+  .sidebar-container {
+    border-right: 1px solid var(--dep-border-soft) !important;
+
+    .el-menu-item.is-active.nest-menu::before,
+    .is-active.submenu-title-noDropdown.outer-most::before {
+      background: var(--dep-accent) !important;
+      border: 1px solid rgb(22 119 255 / 25%);
+      border-radius: 8px;
+    }
+
+    .el-menu-item.is-active.nest-menu > *,
+    .is-active.submenu-title-noDropdown.outer-most > * {
+      color: var(--dep-accent-text) !important;
+      font-weight: 600;
+    }
+  }
+}
+
+/* 各路由页面统一滚动容器（顶栏/侧栏固定，仅此处滚动） */
+.page-wrapper {
+  box-sizing: border-box;
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 根节点同时带 .main（如用户管理） */
+.page-wrapper.main,
+.main.page-wrapper {
+  min-height: min-content;
+  padding: var(--dep-page-pad);
+}
+
+/* 通用页面布局：默认随内容增高，由 .page-wrapper 滚动 */
+.dep-page {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: min-content;
+  padding: var(--dep-page-pad);
+}
+
+/* 需要「表格局部滚动 + 底部分页固定」时用此类（与 page-wrapper 同元素） */
+.page-wrapper.dep-page--fill {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dep-page--fill {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dep-page-header {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dep-page-header h1,
+.dep-page-title {
+  margin: 0;
+  font-size: var(--dep-title-size);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--dep-text);
+}
+
+.dep-page-eyebrow {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dep-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dep-page-metric {
+  font-size: var(--dep-metric-size);
+  font-weight: 700;
+  color: var(--dep-accent-text);
+}
+
+/* 卡片容器 */
+.dep-card {
+  padding: 14px 16px;
+  background: var(--dep-surface);
+  border: 1px solid var(--dep-border-soft);
+  border-radius: var(--dep-radius);
+  box-shadow: none;
+}
+
+.dep-card-fill {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dep-toolbar {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.dep-table-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px dashed var(--dep-border-soft);
+  border-radius: 8px;
+}
+
+.dep-pagination {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 12px;
+  margin-top: auto;
+  border-top: 1px dashed var(--dep-border-soft);
+}
+
+/* Element Plus 统一描边风格 */
+.el-button--primary {
+  color: var(--dep-text) !important;
+  background: var(--dep-accent) !important;
+  border: 1px solid var(--dep-border) !important;
+  border-radius: 8px !important;
+}
+
+.el-button--primary:hover,
+.el-button--primary:focus {
+  color: var(--dep-text) !important;
+  background: var(--dep-accent-strong) !important;
+  border-color: var(--dep-border) !important;
+}
+
+.el-button--default {
+  border: 1px solid var(--dep-border-soft) !important;
+  border-radius: 8px !important;
+}
+
+.el-card {
+  border: 1px solid var(--dep-border-soft) !important;
+  border-radius: var(--dep-radius) !important;
+  box-shadow: none !important;
+}
+
+.el-input__wrapper,
+.el-select__wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 0 0 1px var(--dep-border-soft) inset !important;
+}
+
+.el-dialog {
+  border: 1px solid var(--dep-border) !important;
+  border-radius: 12px !important;
+}
+
+/* pure-admin 表格页 */
+.statistics-center.main {
+  box-sizing: border-box;
+  min-height: min-content;
+  padding: var(--dep-page-pad);
+}
+
+/* 运营自定义页：缩小标题与指标数字 */
+.student-page,
+.progress-page,
+.enrollment-page,
+.system-page,
+.statistics-center {
+  box-sizing: border-box;
+  min-height: min-content;
+}
+
+.student-page h1,
+.progress-page h1,
+.enrollment-page h1,
+.dashboard-shell h1,
+.system-page h1,
+.exam-rooms-page h1,
+.exam-schedules-page h1,
+.page h1,
+.statistics-center .page-head h1,
+header h1 {
+  font-size: var(--dep-title-size) !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  color: var(--dep-text) !important;
+}
+
+.student-header strong,
+.progress-page header strong,
+.exam-rooms-page .dep-page-metric,
+.exam-schedules-page .dep-page-metric,
+header strong {
+  font-size: var(--dep-metric-size) !important;
+  color: var(--dep-accent-text) !important;
+}
+
+.metric-grid strong,
+.dashboard-shell .metric-grid strong {
+  font-size: var(--dep-metric-size) !important;
+}
+
+.statistics-center .text-3xl {
+  font-size: var(--dep-metric-size) !important;
+  line-height: 1.2 !important;
+}
+
+.student-page,
+.progress-page,
+.exam-rooms-page,
+.exam-schedules-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-page.dep-page--fill,
+.progress-page.dep-page--fill,
+.exam-rooms-page.dep-page--fill,
+.exam-schedules-page.dep-page--fill {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.enrollment-page,
+.system-page {
+  padding: var(--dep-page-pad);
+}
+
+/* 无 dep-table-scroll 的简易表格页 */
+.page .table,
+.wrap .panel,
+.enrollment-page {
+  overflow-x: auto;
+}
+
+.page-wrapper > .wrap,
+.page-wrapper > .page,
+.page-wrapper > .system-page {
+  box-sizing: border-box;
+  min-height: min-content;
+  padding: var(--dep-page-pad);
+}
+
+.student-panel,
+.progress-page .panel,
+.exam-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.student-table,
+.progress-page .table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px dashed var(--dep-border-soft);
+  border-radius: 8px;
+}
+
+.pager-row {
+  flex-shrink: 0;
+  padding-top: 12px;
+  margin-top: auto;
+  border-top: 1px dashed var(--dep-border-soft);
+}
+
+/* 工作台：仅内容区滚动，图表区有足够高度 */
+.dashboard-shell {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 学员端 drive-page */
+.drive-page {
+  height: 100%;
+  min-height: 0;
+}
+
+.hero-panel h2 {
+  font-size: 22px !important;
+}
+
+.metric strong {
+  font-size: var(--dep-metric-size) !important;
+}

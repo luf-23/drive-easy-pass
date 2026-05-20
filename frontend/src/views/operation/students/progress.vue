@@ -89,16 +89,16 @@ function formatDateTime(value: string | null) {
 </script>
 
 <template>
-  <div class="progress-page">
-    <section class="progress-header">
+  <div class="progress-page dep-page dep-page--fill">
+    <header class="progress-header dep-page-header">
       <div>
         <p>Training Progress</p>
         <h1>学员考试进度</h1>
       </div>
-      <strong>{{ rows.length }}</strong>
-    </section>
+      <strong class="dep-page-metric">{{ rows.length }}</strong>
+    </header>
 
-    <section class="progress-panel">
+    <section class="progress-panel dep-card dep-card-fill">
       <div class="toolbar">
         <label>
           关键词
@@ -127,7 +127,7 @@ function formatDateTime(value: string | null) {
 
       <div v-if="error" class="error-message">{{ error }}</div>
 
-      <div class="progress-table">
+      <div class="progress-table dep-table-scroll">
         <div class="progress-row progress-head">
           <span>学员</span>
           <span>手机号</span>
@@ -162,43 +162,16 @@ function formatDateTime(value: string | null) {
 </template>
 
 <style scoped>
-.progress-page {
-  display: grid;
-  gap: 16px;
+.progress-header {
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
-.progress-header,
-.progress-panel {
-  padding: 18px;
-  background: #fff;
-  border: 1px solid #dfe5da;
-  border-radius: 8px;
-}
-
-.progress-header,
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.progress-header p {
-  margin: 0 0 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #607067;
-  text-transform: uppercase;
-}
-
-.progress-header h1 {
-  margin: 0;
-  font-size: 24px;
-  color: #17201b;
-}
-
-.progress-header strong {
-  font-size: 28px;
-  color: #21483a;
 }
 
 .toolbar {
@@ -245,9 +218,9 @@ button:disabled {
 }
 
 .primary {
-  color: #fff;
-  background: #2f6f54;
-  border: 1px solid #2f6f54;
+  color: #1a1a1a;
+  background: #b8dcff;
+  border: 1px solid #1a1a1a;
 }
 
 .ghost {

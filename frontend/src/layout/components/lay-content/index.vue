@@ -187,12 +187,21 @@ const transitionMain = defineComponent({
 }
 
 .main-content {
-  display: block;
-  height: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 24px);
   min-height: 0;
-  margin: 16px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  margin: 12px;
+  overflow: hidden;
+}
+
+/* 过渡组件包裹层也需占满，才能把滚动交给 .page-wrapper */
+.main-content > :deep(*) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .content-frame {
@@ -213,7 +222,9 @@ const transitionMain = defineComponent({
 }
 
 .page-wrapper {
-  min-height: 100%;
-  height: auto;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden auto;
 }
 </style>

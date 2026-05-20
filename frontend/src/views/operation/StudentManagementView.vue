@@ -73,16 +73,16 @@ function formatDateTime(value: string | null) {
 </script>
 
 <template>
-  <div class="student-page">
-    <section class="student-header">
+  <div class="student-page dep-page dep-page--fill">
+    <header class="dep-page-header student-header">
       <div>
-        <p>Student Pool</p>
+        <p class="dep-page-eyebrow">Student Pool</p>
         <h1>学员管理</h1>
       </div>
-      <strong>{{ total }}</strong>
-    </section>
+      <strong class="dep-page-metric">{{ total }}</strong>
+    </header>
 
-    <section class="student-panel">
+    <section class="student-panel dep-card dep-card-fill">
       <div class="toolbar">
         <label>
           关键词
@@ -104,7 +104,7 @@ function formatDateTime(value: string | null) {
 
       <div v-if="error" class="error-message">{{ error }}</div>
 
-      <div class="student-table">
+      <div class="student-table dep-table-scroll">
         <div class="student-row student-head">
           <span>姓名</span>
           <span>手机号</span>
@@ -138,7 +138,7 @@ function formatDateTime(value: string | null) {
         </template>
       </div>
 
-      <div class="pager-row">
+      <div class="pager-row dep-pagination">
         <button class="ghost" :disabled="page <= 1 || loading" @click="prevPage">
           上一页
         </button>
@@ -156,42 +156,10 @@ function formatDateTime(value: string | null) {
 </template>
 
 <style scoped>
-.student-page {
-  display: grid;
-  gap: 16px;
-}
-
-.student-header,
-.student-panel {
-  padding: 18px;
-  background: #fff;
-  border: 1px solid #dfe5da;
-  border-radius: 8px;
-}
-
 .student-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.student-header p {
-  margin: 0 0 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #607067;
-  text-transform: uppercase;
-}
-
-.student-header h1 {
-  margin: 0;
-  font-size: 24px;
-  color: #17201b;
-}
-
-.student-header strong {
-  font-size: 28px;
-  color: #21483a;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .toolbar {
@@ -242,9 +210,9 @@ button:disabled {
 }
 
 .primary {
-  color: #fff;
-  background: #2f6f54;
-  border: 1px solid #2f6f54;
+  color: #1a1a1a;
+  background: #b8dcff;
+  border: 1px solid #1a1a1a;
 }
 
 .ghost {

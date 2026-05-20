@@ -68,11 +68,24 @@ function statusText(status: number) {
 </template>
 
 <style scoped>
-.page { display: grid; gap: 16px; padding: 18px; background: #fff; border: 1px solid #dfe5da; border-radius: 8px; }
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: min-content;
+}
+
+.page .table {
+  overflow-x: auto;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #d9dde3;
+  border-radius: 10px;
+}
 header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 p { margin: 0 0 4px; color: #607067; font-size: 12px; font-weight: 700; text-transform: uppercase; }
 h1 { margin: 0; font-size: 24px; color: #17201b; }
-button { height: 36px; padding: 0 14px; font-weight: 700; color: #fff; cursor: pointer; background: #2f6f54; border: 1px solid #2f6f54; border-radius: 8px; }
+button { height: 36px; padding: 0 14px; font-weight: 700; color: #1a1a1a; cursor: pointer; background: #b8dcff; border: 1px solid #1a1a1a; border-radius: 8px; }
 button:disabled { cursor: not-allowed; opacity: .55; }
 .table { overflow-x: auto; }
 .row { display: grid; grid-template-columns: 150px 140px 220px 90px 170px; gap: 12px; min-width: 820px; padding: 12px; border-bottom: 1px solid #eef2ec; }
