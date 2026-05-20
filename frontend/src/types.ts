@@ -167,6 +167,42 @@ export interface CoursePackage {
   tag: string;
 }
 
+export type ExamVenueMediaType =
+  | "map"
+  | "video"
+  | "image"
+  | "gpx"
+  | "article";
+
+export interface ExamVenueRouteItem {
+  examType: "科目二" | "科目三";
+  mediaType: ExamVenueMediaType;
+  title: string;
+  routeUrl: string;
+  /** JSON：routing=venue|driving，含起点/终点/path */
+  routePath?: string | null;
+  coverUrl: string;
+  remark: string;
+  enabled: boolean;
+}
+
+export interface ExamVenueSummary {
+  id: number;
+  name: string;
+  address: string;
+  contactPhone: string;
+  hasSubject2Route: boolean;
+  hasSubject3Route: boolean;
+}
+
+export interface ExamVenueDetail {
+  id: number;
+  name: string;
+  address: string;
+  contactPhone: string;
+  routes: ExamVenueRouteItem[];
+}
+
 /** 可预约场次（车管所/考场排期） */
 export interface ExamScheduleCard {
   id: number;

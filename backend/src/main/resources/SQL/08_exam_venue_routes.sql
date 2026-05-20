@@ -1,7 +1,5 @@
+-- 已有库补全考场位置/路线 mock（与 05_data_exam.sql 一致）
 SET NAMES utf8mb4;
-SET character_set_client = utf8mb4;
-SET character_set_connection = utf8mb4;
-SET character_set_results = utf8mb4;
 
 INSERT INTO exam_venues (id, name, address, contact_phone) VALUES
 (1, '市车管所理论考场（城东）', '高新区科苑东路 168 号', '028-12345678'),
@@ -12,30 +10,6 @@ INSERT INTO exam_venues (id, name, address, contact_phone) VALUES
 (6, '郫都犀浦综合驾考基地', '郫都区犀浦镇国宁西路 200 号', '028-88776655')
 ON DUPLICATE KEY UPDATE name = VALUES(name), address = VALUES(address), contact_phone = VALUES(contact_phone);
 
-INSERT INTO exam_schedules (id, venue_id, exam_type, exam_date, start_time, end_time, capacity, remark) VALUES
-(1, 1, '科目一', DATE_ADD(CURDATE(), INTERVAL 5 DAY), '09:00:00', '11:30:00', 120, '理论考试第一轮'),
-(2, 1, '科目一', DATE_ADD(CURDATE(), INTERVAL 6 DAY), '14:00:00', '16:30:00', 120, '理论考试加场'),
-(3, 1, '科目四', DATE_ADD(CURDATE(), INTERVAL 10 DAY), '09:00:00', '10:45:00', 80, '安全文明常识'),
-(4, 2, '科目二', DATE_ADD(CURDATE(), INTERVAL 7 DAY), '08:00:00', '12:00:00', 40, '场地五项'),
-(5, 2, '科目二', DATE_ADD(CURDATE(), INTERVAL 9 DAY), '08:00:00', '12:00:00', 40, ''),
-(6, 3, '科目三', DATE_ADD(CURDATE(), INTERVAL 8 DAY), '13:30:00', '17:00:00', 30, '道路驾驶技能'),
-(7, 3, '科目三', DATE_ADD(CURDATE(), INTERVAL 11 DAY), '08:30:00', '12:00:00', 30, ''),
-(8, 4, '科目二', DATE_ADD(CURDATE(), INTERVAL 7 DAY), '08:30:00', '12:30:00', 35, '电子化场地'),
-(9, 4, '科目二', DATE_ADD(CURDATE(), INTERVAL 12 DAY), '08:30:00', '12:30:00', 35, ''),
-(10, 5, '科目三', DATE_ADD(CURDATE(), INTERVAL 9 DAY), '13:00:00', '17:30:00', 28, '城区道路'),
-(11, 5, '科目三', DATE_ADD(CURDATE(), INTERVAL 13 DAY), '08:00:00', '12:00:00', 28, ''),
-(12, 6, '科目二', DATE_ADD(CURDATE(), INTERVAL 8 DAY), '08:00:00', '11:30:00', 32, ''),
-(13, 6, '科目三', DATE_ADD(CURDATE(), INTERVAL 10 DAY), '14:00:00', '17:00:00', 25, '综合基地道路考试')
-ON DUPLICATE KEY UPDATE
-  venue_id = VALUES(venue_id),
-  exam_type = VALUES(exam_type),
-  exam_date = VALUES(exam_date),
-  start_time = VALUES(start_time),
-  end_time = VALUES(end_time),
-  capacity = VALUES(capacity),
-  remark = VALUES(remark);
-
--- routing: venue=科目二仅标点；driving=科目三道路规划
 INSERT INTO exam_venue_routes (venue_id, exam_type, media_type, title, route_url, route_path, remark, enabled) VALUES
 (2, '科目二', 'map', '宏远科目二考场', '',
  '{"routing":"venue","start":{"lat":30.5938,"lng":104.1748,"label":"宏远科目二电子化考场"},"end":{"lat":30.5938,"lng":104.1748,"label":"宏远科目二电子化考场"},"path":[[30.5938,104.1748]]}',

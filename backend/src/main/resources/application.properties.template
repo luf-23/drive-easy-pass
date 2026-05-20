@@ -6,3 +6,5 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 app.jwt.secret=${APP_JWT_SECRET:drive-easy-pass-local-secret-change-me}
 app.jwt.expire-hours=24
 app.practice.db-path=${APP_PRACTICE_DB_PATH:classpath:practice_data/car.db}
+# 高德开放平台 Web 服务 Key（路径规划），申请：https://console.amap.com/dev/key/app
+app.amap.web-key=${APP_AMAP_WEB_KEY:}

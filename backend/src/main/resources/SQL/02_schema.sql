@@ -76,6 +76,27 @@ CREATE TABLE IF NOT EXISTS exam_venues (
   create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- exam_venue_routes.route_path：JSON 轨迹 { start, end, path:[[lat,lng],...] }，供前端 Leaflet 画线
+CREATE TABLE IF NOT EXISTS exam_venue_routes (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  venue_id BIGINT NOT NULL,
+  exam_type VARCHAR(20) NOT NULL,
+  media_type VARCHAR(20) NOT NULL DEFAULT 'map',
+  title VARCHAR(100) NOT NULL DEFAULT '',
+  route_url VARCHAR(500) NOT NULL DEFAULT '',
+  route_path TEXT NULL COMMENT '考试路线 GeoJSON 式折线 JSON',
+  cover_url VARCHAR(500) NOT NULL DEFAULT '',
+  remark VARCHAR(255) NOT NULL DEFAULT '',
+  sort_no INT NOT NULL DEFAULT 0,
+  enabled TINYINT(1) NOT NULL DEFAULT 1,
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_venue_exam_route (venue_id, exam_type),
+  CONSTRAINT fk_venue_route_venue
+    FOREIGN KEY (venue_id) REFERENCES exam_venues (id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS exam_schedules (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   venue_id BIGINT NOT NULL,

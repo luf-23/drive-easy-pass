@@ -19,7 +19,11 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth/") || path.startsWith("/questions") || path.startsWith("/public/")) {
+        if (path.startsWith("/auth/")
+                || path.startsWith("/questions")
+                || path.startsWith("/public/")
+                || "/public/exam-schedules".equals(path)
+                || path.startsWith("/public/exam-venues")) {
             return true;
         }
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {

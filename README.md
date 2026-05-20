@@ -50,6 +50,21 @@ cd ./backend
 ./mvnw install
 ```
 
+## 考场路线地图（沿真实道路）
+
+打开考场路线地图时，系统会调用**驾车路径规划**（优先高德，与高德导航同类接口），根据起终点（及途经点）生成沿道路的折线，而不是手画直线。
+
+1. 登录 [高德开放平台](https://console.amap.com/dev/key/app) 创建应用，添加 **Web 服务** Key。
+2. 在 `backend/application.properties`（由 `application.properties.template` 复制）中配置：
+
+```properties
+app.amap.web-key=你的高德Web服务Key
+```
+
+或通过环境变量 `APP_AMAP_WEB_KEY`。配置后重启后端。
+
+未配置 Key 时，前端会尝试 OSRM 公开路由（国内可能不稳定）。数据库 `route_path` 中 `routing: "driving"` 表示按道路规划；可含 `waypoints` 途经点。
+
 ## 运行项目
 
 在项目根目录下运行以下命令启动开发服务器：

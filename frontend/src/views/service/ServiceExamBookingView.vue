@@ -7,8 +7,16 @@ import {
   getMyExamRegistrations,
   getPublicExamSchedules
 } from "@/api/examBooking";
+import { getExamVenueDetail } from "@/api/examVenues";
+import ExamRouteMapDialog from "@/components/ExamRouteMap/ExamRouteMapDialog.vue";
 import { useAuth } from "@/stores/auth";
 import type { ExamRegistrationRow, ExamScheduleCard } from "@/types";
+import {
+  hasDrawableRoute,
+  mapActionLabel,
+  parseRoutePath,
+  type ExamRoutePathData
+} from "@/utils/examRoutePath";
 
 const router = useRouter();
 const { isLoggedIn } = useAuth();
@@ -103,6 +111,49 @@ async function cancelReg(row: ExamRegistrationRow) {
   }
 }
 
+const routeLoadingId = ref<number | null>(null);
+const mapDialogVisible = ref(false);
+const mapDialogTitle = ref("");
+const mapDialogSubtitle = ref("");
+const mapDialogRoute = ref<ExamRoutePathData | null>(null);
+
+function isFieldExam(type: string) {
+  return type === "科目二" || type === "科目三";
+}
+
+async function openVenueRoute(venueId: number, examType: string, venueName: string) {
+  routeLoadingId.value = venueId;
+  err.value = "";
+  try {
+    const detail = await getExamVenueDetail(venueId);
+    const route = detail.routes.find(
+      r =>
+        r.examType === examType &&
+        r.enabled &&
+        (hasDrawableRoute(r.routePath, r.mediaType) || r.routeUrl)
+    );
+    if (!route) {
+      err.value = `该考场暂未录入「${examType}」路线`;
+      return;
+    }
+    const pathData = parseRoutePath(route.routePath);
+    if (pathData) {
+      mapDialogTitle.value = `${examType} · ${route.title || venueName}`;
+      mapDialogSubtitle.value = route.remark || venueName;
+      mapDialogRoute.value = pathData;
+      mapDialogVisible.value = true;
+      return;
+    }
+    if (route.routeUrl) {
+      window.open(route.routeUrl, "_blank", "noopener,noreferrer");
+    }
+  } catch (e) {
+    err.value = e instanceof Error ? e.message : "路线加载失败";
+  } finally {
+    routeLoadingId.value = null;
+  }
+}
+
 function statusLabel(s: string) {
   const map: Record<string, string> = {
     confirmed: "已确认",
@@ -163,6 +214,21 @@ onMounted(reloadAll);
             </div>
           </dl>
           <footer>
+            <button
+              v-if="isFieldExam(s.examType)"
+              type="button"
+              class="ghost"
+              :disabled="routeLoadingId === s.venueId"
+              @click="openVenueRoute(s.venueId, s.examType, s.venueName)"
+            >
+              {{
+                routeLoadingId === s.venueId
+                  ? "加载中…"
+                  : s.examType === "科目二"
+                    ? "查看考场位置"
+                    : "查看考试路线"
+              }}
+            </button>
             <button
               type="button"
               class="primary"
@@ -237,6 +303,13 @@ onMounted(reloadAll);
       </table>
       <p v-else class="muted">暂无记录，可在上方场次中发起预约。</p>
     </section>
+
+    <ExamRouteMapDialog
+      v-model:visible="mapDialogVisible"
+      :title="mapDialogTitle"
+      :subtitle="mapDialogSubtitle"
+      :route="mapDialogRoute"
+    />
   </div>
 </template>
 
@@ -380,6 +453,9 @@ dd {
 }
 
 .card footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: auto;
 }
 
