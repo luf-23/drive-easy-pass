@@ -46,7 +46,7 @@ async function submitAuth() {
       body: JSON.stringify(form.value)
     });
     setAuth(result.token, result.user);
-    router.push((route.query.redirect as string) || "/home");
+    router.push((route.query.redirect as string) || "/");
   } catch (err) {
     error.value = err instanceof Error ? err.message : "认证失败，请稍后重试";
   } finally {

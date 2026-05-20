@@ -158,7 +158,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   }
   /** 已登录用户点击登录/注册时留在业务页；报考门户等仍在 whiteList 中但此处不拦截 */
   function toCorrectRoute() {
-    authEntryPaths.has(to.path) ? next(_from.fullPath || "/home") : next();
+    authEntryPaths.has(to.path) ? next(_from.fullPath || "/") : next();
   }
   if (Cookies.get(multipleTabsKey) && userInfo) {
     if (

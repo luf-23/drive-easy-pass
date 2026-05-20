@@ -135,7 +135,8 @@ function optionClass(key: OptionKey) {
   return {
     selected: selected.includes(key),
     correct: answerLocked.value && expected.includes(key),
-    wrong: answerLocked.value && selected.includes(key) && !expected.includes(key),
+    wrong:
+      answerLocked.value && selected.includes(key) && !expected.includes(key),
     "judgment-option": isJudgment.value,
     "judgment-option--true": variant === "true",
     "judgment-option--false": variant === "false"
@@ -172,9 +173,7 @@ function nextQuestion() {
       <div class="section-head practice-head">
         <div>
           <p class="eyebrow">
-            顺序练习{{
-              isJudgment ? " · 判断题" : isMulti ? " · 多选题" : ""
-            }}
+            顺序练习{{ isJudgment ? " · 判断题" : isMulti ? " · 多选题" : "" }}
           </p>
           <h2>{{ currentQuestion.content }}</h2>
         </div>
@@ -193,11 +192,9 @@ function nextQuestion() {
           :disabled="answerLocked"
           @click="pickAnswer(key)"
         >
-          <span
-            v-if="isJudgment"
-            class="judgment-icon"
-            aria-hidden="true"
-          >{{ judgmentIcon(currentQuestion, key) }}</span>
+          <span v-if="isJudgment" class="judgment-icon" aria-hidden="true">{{
+            judgmentIcon(currentQuestion, key)
+          }}</span>
           <b v-else>{{ key }}</b>
           <span :class="{ 'judgment-label': isJudgment }">
             {{ optionText(currentQuestion, key) }}

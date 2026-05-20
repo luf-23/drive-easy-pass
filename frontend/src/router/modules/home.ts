@@ -1,10 +1,12 @@
+import { getTopMenu } from "@/router/utils";
+
 const Layout = () => import("@/layout/index.vue");
 
 export default {
   path: "/",
   name: "Home",
   component: Layout,
-  redirect: "/operation/dashboard",
+  redirect: getTopMenu()?.path || "/welcome",
   meta: {
     icon: "ep/home-filled",
     title: "驾校运营后台",

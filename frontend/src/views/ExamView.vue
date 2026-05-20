@@ -190,7 +190,8 @@ async function submitExam() {
                   v-if="isJudgmentQuestion(question)"
                   class="judgment-icon"
                   aria-hidden="true"
-                >{{ judgmentIcon(question, key) }}</span>
+                  >{{ judgmentIcon(question, key) }}</span
+                >
                 <b v-else>{{ key }}</b>
                 <span
                   :class="{
@@ -202,7 +203,11 @@ async function submitExam() {
               </button>
             </div>
             <div
-              v-if="isMulti(question) && !isLocked(question.id) && examAnswers[question.id]"
+              v-if="
+                isMulti(question) &&
+                !isLocked(question.id) &&
+                examAnswers[question.id]
+              "
               class="exam-feedback"
             >
               <button class="ghost" @click="confirmMultiAnswer(question)">
@@ -212,7 +217,10 @@ async function submitExam() {
             <div v-if="isLocked(question.id)" class="exam-feedback">
               <strong>
                 {{
-                  isAnswerCorrect(examAnswers[question.id] ?? "", question.answer)
+                  isAnswerCorrect(
+                    examAnswers[question.id] ?? "",
+                    question.answer
+                  )
                     ? "回答正确"
                     : "回答错误"
                 }}
