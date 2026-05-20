@@ -18,8 +18,11 @@ import {
   initRouter,
   getTopMenu,
   isOneOfArray,
+  getDefaultHomePath,
   getHistoryMode,
   findRouteByPath,
+  ADMIN_DASHBOARD_PATHS,
+  STAFF_ROLES,
   handleAliveRoute,
   formatTwoStageRoutes,
   formatFlatteningRoutes
@@ -203,6 +206,14 @@ router.beforeEach((to: ToRouteType, _from, next) => {
         }
       }
       if (isAllEmpty(to.name)) router.push(to.fullPath);
+    }
+    // 学员误入运营工作台时重定向到学员首页，避免请求 /admin/* 接口报 403
+    if (
+      userInfo &&
+      ADMIN_DASHBOARD_PATHS.includes(to.path) &&
+      !isOneOfArray(STAFF_ROLES, userInfo?.roles ?? [])
+    ) {
+      return next({ path: getDefaultHomePath(), replace: true });
     }
     // 无权限跳转403页面
     if (

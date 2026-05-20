@@ -371,10 +371,19 @@ function hasAuth(value: string | Array<string>): boolean {
   return isAuths ? true : false;
 }
 
+/** 可访问运营工作台的角色 */
+const STAFF_ROLES = ["admin", "coach", "market", "sales"];
+
+/** 运营工作台路由（学员不可访问） */
+export const ADMIN_DASHBOARD_PATHS = ["/welcome", "/operation/dashboard"];
+
 function handleTopMenu(route) {
   if (route?.children && route.children.length > 1) {
     if (route.redirect) {
-      return route.children.filter(cur => cur.path === route.redirect)[0];
+      return (
+        route.children.filter(cur => cur.path === route.redirect)[0] ??
+        route.children[0]
+      );
     } else {
       return route.children[0];
     }
@@ -383,12 +392,24 @@ function handleTopMenu(route) {
   }
 }
 
+/** 按角色返回登录后/菜单未就绪时的默认首页 */
+function getDefaultHomePath(): string {
+  const roles =
+    storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
+  if (roles.includes("student")) return "/home";
+  if (isOneOfArray(STAFF_ROLES, roles)) return "/operation/dashboard";
+  return "/home";
+}
+
 /** top menu helper */
 function getTopMenu(tag = false): menuType {
-  const topMenu = handleTopMenu(
-    usePermissionStoreHook().wholeMenus[0]?.children[0]
-  );
-  tag && useMultiTagsStoreHook().handleTags("push", topMenu);
+  const root = usePermissionStoreHook().wholeMenus[0];
+  const topMenu = root
+    ? handleTopMenu(root)
+    : ({ path: getDefaultHomePath(), meta: { title: "首页" } } as menuType);
+  if (topMenu?.path) {
+    tag && useMultiTagsStoreHook().handleTags("push", topMenu);
+  }
   return topMenu;
 }
 
@@ -399,6 +420,7 @@ export {
   filterTree,
   initRouter,
   getTopMenu,
+  getDefaultHomePath,
   addPathMatch,
   isOneOfArray,
   getHistoryMode,
@@ -408,5 +430,6 @@ export {
   handleAliveRoute,
   formatTwoStageRoutes,
   formatFlatteningRoutes,
-  filterNoPermissionTree
+  filterNoPermissionTree,
+  STAFF_ROLES
 };
